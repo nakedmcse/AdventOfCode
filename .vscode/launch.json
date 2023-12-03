@@ -19,11 +19,35 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch 1R",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/2023/Day3/part1refactor.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch 2",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/2023/Day3/part2.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch 2R",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/2023/Day3/part2refactor.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
