@@ -1,0 +1,15 @@
+{
+  "name": "adventofcodeday3",
+  "version": "1.0.0",
+  "description": "Advent of Code Day 3 Typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.10.2"
+  }
+}
