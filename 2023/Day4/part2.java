@@ -12,7 +12,6 @@ public class part2 {
 
     // Global Card Counts
     static List<Integer> cardCounts = new ArrayList<>();
-    static List<scratchCard> scratchCards = new ArrayList<>();
 
     // Extract number from string
     public static int getNumber(String partstr) {
@@ -49,7 +48,7 @@ public class part2 {
 
     public static void main(String[] args) throws Exception {
         // Scratchcard Object
-        public class scratchCard {
+        final class scratchCard {
             public int index;
             public int wins;
             public List<scratchCard> copies;
@@ -60,7 +59,7 @@ public class part2 {
                 copies = new ArrayList<>();
             }   
         }
-        
+
         // Read Input file
         List<String> lines = Files.readAllLines(Paths.get("2023/Day4/inputfile.txt"));
 
@@ -95,6 +94,7 @@ public class part2 {
         }
 
         // Build list
+        final List<scratchCard> scratchCards = new ArrayList<>();
         for (int i=0; i<cardCounts.size(); i++) {
             scratchCards.add(new scratchCard(i,cardCounts.get(i)));
         }
