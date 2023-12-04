@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "part2refactor",
+            "request": "launch",
+            "mainClass": "part2refactor",
+            "projectName": "AdventOfCode_92d79764"
+        },
+        {
+            "type": "java",
+            "name": "part1refactor",
+            "request": "launch",
+            "mainClass": "part1refactor",
+            "projectName": "AdventOfCode_92d79764"
+        },
+        {
+            "type": "java",
             "name": "victoria",
             "request": "launch",
             "mainClass": "victoria",
