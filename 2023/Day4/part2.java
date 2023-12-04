@@ -13,17 +13,6 @@ public class part2 {
     // Global Card Counts
     static List<Integer> cardCounts = new ArrayList<>();
 
-    // Extract number from string
-    public static int getNumber(String partstr) {
-        String digits = "";
-        for (Character c : partstr.toCharArray()) {
-            if(Character.isDigit(c)) digits += c;
-            else if(digits.length() > 0) break;
-        }
-        if(digits.length() > 0) return Integer.parseInt(digits);
-        return 0;
-    }
-
     // Calc winning value
     public static int calcWinning(int count) {
         if(count == 1) return count;
@@ -34,32 +23,20 @@ public class part2 {
 
     // Recurse card copies
     public static int calcCopies(int idx) {
-        int retval = 0;
-        retval += cardCounts.get(idx);
-        if(retval > 0) {
-            for(int i = idx+1; i<idx+1+retval; i++) {
-                if(i<cardCounts.size()) {
-                    retval += calcCopies(i);
-                }
+        // Leaf ends at card with 0 wins
+        if (cardCounts.get(idx)==0) return 1;
+
+        // Otherwise compute branch
+        int retval = 1;
+        for(int i = idx+1; i<idx+1+cardCounts.get(idx); i++) {
+            if(i<cardCounts.size()) {
+                retval += calcCopies(i);
             }
         }
         return retval;
     }
 
     public static void main(String[] args) throws Exception {
-        // Scratchcard Object
-        final class scratchCard {
-            public int index;
-            public int wins;
-            public List<scratchCard> copies;
-
-            public scratchCard(int idx, int w) {
-                index = idx;
-                wins = w;
-                copies = new ArrayList<>();
-            }   
-        }
-
         // Read Input file
         List<String> lines = Files.readAllLines(Paths.get("2023/Day4/inputfile.txt"));
 
@@ -67,7 +44,6 @@ public class part2 {
         int sum = 0;
 
         // Iterate file
-        
         for (String line : lines) {
             String card = line.split(":")[1];
             String[] numbers = card.split("\\|");
@@ -86,17 +62,9 @@ public class part2 {
             cardCounts.add(winningCount);
         }
 
-        // Trim ending counts
+        // Compute card values
         for (int i=0; i<cardCounts.size(); i++) {
-            if(i+cardCounts.get(i) > cardCounts.size()) {
-                cardCounts.set(i, cardCounts.size() - i);
-            }
-        }
-
-        // Build list
-        final List<scratchCard> scratchCards = new ArrayList<>();
-        for (int i=0; i<cardCounts.size(); i++) {
-            scratchCards.add(new scratchCard(i,cardCounts.get(i)));
+            sum += calcCopies(i);
         }
 
         //Dumpit to crumpit
