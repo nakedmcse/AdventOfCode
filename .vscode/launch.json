@@ -5,6 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "victoria",
+            "request": "launch",
+            "mainClass": "victoria",
+            "projectName": "AdventOfCode_92d79764"
+        },
+        {
+            "type": "java",
+            "name": "part2",
+            "request": "launch",
+            "mainClass": "part2",
+            "projectName": "AdventOfCode_92d79764"
+        },
+        {
+            "type": "java",
+            "name": "part1",
+            "request": "launch",
+            "mainClass": "part1",
+            "projectName": "AdventOfCode_92d79764"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch 1",
