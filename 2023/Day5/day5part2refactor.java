@@ -34,7 +34,7 @@ class LongPair {
     }
 }
 
-public class part2refactor {
+public class day5part2refactor {
     // Compiled regex for number matching
     private static final Pattern pattern = Pattern.compile("(\\d+)\\s+(\\d+)");
     private static final Pattern threeNum = Pattern.compile("(\\d+)\\s+(\\d+)\\s+(\\d+)");
