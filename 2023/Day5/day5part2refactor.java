@@ -73,7 +73,7 @@ public class day5part2refactor {
 
     public static void main(String[] args) throws Exception {
         // Read Input file
-        List<String> lines = Files.readAllLines(Paths.get("2023/Day5/testcase.txt"));
+        List<String> lines = Files.readAllLines(Paths.get("2023/Day5/inputfile.txt"));
 
         // Set variables
         long minLoc = 0;
