@@ -23,7 +23,7 @@ func (lp LongPair) MutateSeed(seed, key int64) int64 {
 }
 
 func main() {
-	file, err := os.Open("2023\\Day5\\inputfile.txt")
+	file, err := os.Open("inputfile.txt")
 	if err != nil {
 		fmt.Println("Error opening input file:", err)
 		return
