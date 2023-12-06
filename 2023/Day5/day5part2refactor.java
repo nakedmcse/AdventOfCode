@@ -62,7 +62,7 @@ public class day5part2refactor {
     public static long applyMap(Map<Long,LongPair> map, long seed) {
         for(Long key:map.keySet()) {
             LongPair rangeMod = map.get(key);
-            long newseed = rangeMod.mutateSeed(seed,key);
+            long newseed = (seed >= key && seed < key + rangeMod.getSecond()) ? rangeMod.mutateSeed(seed,key) : seed;
             if(newseed!=seed) {
                 seed = newseed;
                 break;
