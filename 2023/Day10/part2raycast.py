@@ -182,10 +182,11 @@ linect = 0
 for line in cells:
     counting = False
     for loc in range(0,len(line)):
-        if line[loc].steps == 0 and not line[loc].isPipe():
+        if line[loc].steps == 0:
             ray = line[loc:]
             isFirst = loc == 0
-            crossings = compress_list([i for i in ray if i.steps>0],isFirst)
+            #crossings = compress_list([i for i in ray if i.steps>0],isFirst)
+            crossings = [i for i in ray if i.steps>0 and i.exitUp]
             if len(crossings) % 2 == 1:
                 sum += 1
     linect += 1
