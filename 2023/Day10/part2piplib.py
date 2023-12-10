@@ -1,5 +1,6 @@
-# Day 10 Part 1
+# Day 10 Part 2
 import re
+from shapely.geometry import Point,Polygon
 
 # Init vars
 pattern_digit = re.compile(r'-?\d+')
@@ -146,6 +147,7 @@ for line in map:
         new_cell.distance(start_x,start_y)
         new_cell.setExits(char)
         cell_line.append(new_cell)
+        x += 1
     cells.append(cell_line)
     y += 1
 
@@ -161,7 +163,7 @@ print(f'Starts at {start_x},{start_y}')
 while not done:
     if cells[cur_y][cur_x].isVertice():
         print(f'vertice at location {cur_x},{cur_y}')
-        verticies.append(cell(cur_x,cur_y))
+        verticies.append(Point(cur_x,cur_y))
 
     match direction:
         case 'U':
@@ -183,20 +185,13 @@ while not done:
 
 cells[start_y][start_x].steps = 1
 sum = 0
+poly = Polygon(verticies)
 for line in cells:
-    inside = False
     for loc in range(0,len(line)):
-        if line[loc].steps>0:
-            continue
-        if line[loc].exitUp or line[loc].exitDown or line[loc].exitRight or line[loc].exitLeft:
-            continue
-        ray = line[loc:]
-        crossings = [i for i in ray if i.steps>0]
-        if len(crossings) % 2 != 0:
-            sum += 1 
-
-# Get area
-#sum = shoelace_area(verticies)
+        if line[loc].steps == 0:
+            p1 = Point(line[loc].x,line[loc].y)
+            if p1.within(poly):
+                sum += 1
 
 # Answer
 print("PART 1")    

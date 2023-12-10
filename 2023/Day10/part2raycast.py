@@ -1,8 +1,6 @@
 # Day 10 Part 1
-import re
 
 # Init vars
-pattern_digit = re.compile(r'-?\d+')
 sum, x, y, start_x, start_y = 0, 0, 0, 0, 0
 map = []
 cells = []
@@ -22,12 +20,11 @@ class cell:
     def distance(self, sx, sy):
         self.dist = abs(sx - self.x) + abs(sy - self.y)
 
-    def isVertice(self):
-        if self.exitUp and (self.exitLeft or self.exitRight):
-            return True
-        if self.exitDown and (self.exitLeft or self.exitRight):
-            return True
-        return False
+    def isPipe(self):
+        return self.exitUp or self.exitLeft or self.exitRight or self.exitDown
+    
+    def isHorizontal(self):
+        return self.exitLeft or self.exitRight
 
     def setExits(self, exit_char):
         match exit_char:
@@ -87,26 +84,6 @@ class cell:
             return 'L'
         
         return ''
-            
-# Extract digits
-def extract_digits(target):
-    retval = []
-    matches = pattern_digit.findall(target)
-    if matches:
-        retval = [int(match) for match in matches]
-    return retval
-
-# Shoelace Formula
-def shoelace_area(polygon):
-    n = len(polygon)
-    area = 0
-
-    for i in range(n):
-        j = (i + 1) % n  # last point links back to the first
-        area += (polygon[i].x * polygon[j].y)
-        area -= (polygon[j].x * polygon[i].y)
-
-    return abs(area) // 2
 
 # Set start exits
 def start_exits(sx, sy):
@@ -123,6 +100,27 @@ def start_exits(sx, sy):
         if map[sy+1][sx] == '|' or map[sy+1][sx] == 'J' or map[sy+1][sx] == 'L':
             cells[sy][sx].exitDown = True
 
+# Compress consecutive horizontal entries in a list
+def compress_list(nums,isFirst):
+    if not nums:
+        return []
+    
+    if all(e.isHorizontal() for e in nums) and isFirst:
+        return []
+
+    compressed = []
+    start = end = nums[0]
+
+    for num in nums[1:]:
+        if num.x == end.x + 1 and num.isHorizontal():
+            end = num
+        else:
+            compressed.append(end)
+            start = end = num
+
+    compressed.append(end)
+    return compressed
+
 # Read input file
 with open('inputfile.txt','r') as file:
     input_data = file.read()
@@ -137,11 +135,11 @@ for line in input_data.splitlines():
 
 # Build object map
 y = 0
-verticies = []
 for line in map:
     cell_line=[]
     x = 0
     for char in line:
+        x += 1
         new_cell = cell(x,y)
         new_cell.distance(start_x,start_y)
         new_cell.setExits(char)
@@ -159,10 +157,6 @@ cur_x, cur_y = start_x, start_y
 done = False
 print(f'Starts at {start_x},{start_y}')
 while not done:
-    if cells[cur_y][cur_x].isVertice():
-        print(f'vertice at location {cur_x},{cur_y}')
-        verticies.append(cell(cur_x,cur_y))
-
     match direction:
         case 'U':
             cur_y -= 1
@@ -181,23 +175,21 @@ while not done:
         cells[cur_y][cur_x].steps = total_steps
         direction = cells[cur_y][cur_x].chooseDirection(direction)
 
+# Raycast to find points inside the path
 cells[start_y][start_x].steps = 1
 sum = 0
+linect = 0
 for line in cells:
-    inside = False
+    counting = False
     for loc in range(0,len(line)):
-        if line[loc].steps>0:
-            continue
-        if line[loc].exitUp or line[loc].exitDown or line[loc].exitRight or line[loc].exitLeft:
-            continue
-        ray = line[loc:]
-        crossings = [i for i in ray if i.steps>0]
-        if len(crossings) % 2 != 0:
-            sum += 1 
-
-# Get area
-#sum = shoelace_area(verticies)
+        if line[loc].steps == 0 and not line[loc].isPipe():
+            ray = line[loc:]
+            isFirst = loc == 0
+            crossings = compress_list([i for i in ray if i.steps>0],isFirst)
+            if len(crossings) % 2 == 1:
+                sum += 1
+    linect += 1
 
 # Answer
-print("PART 1")    
+print("PART 2 RAYCAST")    
 print(f"Sum: {sum}")
