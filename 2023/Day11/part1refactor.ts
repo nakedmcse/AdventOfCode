@@ -1,4 +1,4 @@
-// Day 11 Part 2 Refactor
+// Day 11 Part 1 Refactor
 
 // Read input file
 import * as fs from 'fs';
@@ -74,14 +74,14 @@ for(let line of lines) {
             starMap.push(new Space(x,y,galaxy));
         }
         if(colExpansion.includes(ux)) {
-            x += 1000000;
+            x += 2;
         } else {
             x++;
         }
         ux++;  // untranslated x - so column expansion compared to original x pos
     }
     if(rowExpansion.includes(uy)) {
-        y += 1000000;
+        y += 2;
     } else {
         y++;
     }
@@ -112,5 +112,5 @@ for(let galaxy of starMap) {
 sum = sum/2;
 
 // Dumpit to Crumpit
-console.log("PART 2 REFACTOR");
+console.log("PART 1 REFACTOR");
 console.log("Sum:",sum);
