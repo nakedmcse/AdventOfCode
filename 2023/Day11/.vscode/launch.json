@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/part1.js",
+            "program": "${workspaceFolder}/part1refactor.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
@@ -23,7 +23,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/part2.js",
+            "program": "${workspaceFolder}/part2refactor.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

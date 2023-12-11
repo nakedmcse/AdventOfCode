@@ -90,7 +90,6 @@ for(let line of lines) {
 
 // Get distances
 for(let i = 0; i<starMap.length; i++) {
-    starMap[i].distances = new Array(starMap.length);
     for(let j = 0; j<starMap.length; j++) {
         if(i==j) {
             starMap[i].distances[j] = 0;
