@@ -1,0 +1,14 @@
+{
+  "name": "adventofcodeday11",
+  "version": "1.0.0",
+  "description": "Advent of Code Day 11",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Walker",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.10.4"
+  }
+}
