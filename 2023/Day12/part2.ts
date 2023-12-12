@@ -2,7 +2,7 @@
 
 // Read input file
 import * as fs from 'fs';
-const fileData: string = fs.readFileSync('sample.txt','utf8');
+const fileData: string = fs.readFileSync('inputfile.txt','utf8');
 const lines: string[] = fileData.split('\n');
 
 // Get number
@@ -144,14 +144,6 @@ for(let line of lines) {
         let candidateGroups: number[] = countGroups(candidate,'#');
         if(checkGroups(candidateGroups,combinations)) {
             prefixCombos++;
-        }
-    }
-    // Calc postfix combo
-    for(let i=0; i<postfixBits; i++) {
-        let candidate: string = replacePattern(postfixPattern,i,postfixPlaces);
-        let candidateGroups: number[] = countGroups(candidate,'#');
-        if(checkGroups(candidateGroups,combinations)) {
-            postfixCombos++;
         }
     }
 
