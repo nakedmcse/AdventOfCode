@@ -2,13 +2,25 @@
 
 // Read input file
 import * as fs from 'fs';
-const fileData: string = fs.readFileSync('sample.txt','utf8');
+const fileData: string = fs.readFileSync('inputfile.txt','utf8');
 const lines: string[] = fileData.split('\n');
 
 // Get number
 function getNumber(partstr:string): number {
     const matches = partstr.match(/\-?\d+/g);
     return matches && matches[0] ? parseInt(matches[0]) : 0;
+}
+
+// Extract End Hashes
+function extractEndHashes(inputString: string): string {
+    const match = inputString.match(/#+$/);
+    return match ? match[0] : '';
+}
+
+// Extract End Questions
+function extractEndQuestions(inputString: string): string {
+    const match = inputString.match(/\?+$/);
+    return match ? match[0] : '';
 }
 
 // Get groups of hash
@@ -101,7 +113,10 @@ for(let line of lines) {
         }
     }
     // Prefix pattern
-    const prefixPattern: string = pattern[pattern.length-1] +"?" + pattern;
+    const tailPattern = (pattern + "?").slice(-combinations[0]);
+    let prevEnd:string = extractEndHashes(pattern).length == combinations[combinations.length-1] ? "" : tailPattern;
+
+    const prefixPattern: string = prevEnd + pattern + "?";
     const prefixPlaces:number = prefixPattern.split('?').length - 1;
     const prefixBits:number = 2**prefixPlaces;
     for(let i=0; i<prefixBits; i++) {
@@ -111,8 +126,9 @@ for(let line of lines) {
             prefixCombos++;
         }
     }
-    console.log(pattern,'--',prefixPattern,'--',combinations,'--',combos,'--',prefixCombos);
-    sum += combos * prefixCombos**4;
+    const totalCombos = combos * prefixCombos**4;
+    console.log(pattern,'--',prevEnd,'--',prefixPattern,'--',combinations,'--',combos,'--',prefixCombos,'--',totalCombos);
+    sum += totalCombos;
 }
 
 // Dumpit to Crumpit
