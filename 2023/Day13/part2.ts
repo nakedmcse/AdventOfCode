@@ -83,6 +83,7 @@ class Note {
     public findHorizontal():number {
         let retval = 0;
         let reflectline = 0;
+        let smudgeAt = 0;
         let diffUsed:boolean = false;
         
         let mapSeen:string[] = [];
@@ -91,7 +92,7 @@ class Note {
         for(let i=1; i<this.map.length; i++) {
             mapSeen.push(this.map[i]);
             let diffs = countDiff(this.map[i],mapSeen[i-1]);
-            if(diffs == 1) diffUsed = true;
+            if(reflectline == 0 && diffs == 1) diffUsed = true;
             if(reflectline == 0 && diffs<2 && i!=this.originalRow) {
                 reflectline = i;
                 this.totaldiffs += diffs;
@@ -132,7 +133,7 @@ class Note {
         for(let i=1; i<rotatedMap.length; i++) {
             mapSeen.push(rotatedMap[i]);
             let diffs = countDiff(rotatedMap[i],mapSeen[i-1]);
-            if(diffs == 1) diffUsed = true;
+            if(reflectline == 0 && diffs == 1) diffUsed = true;
             if(reflectline == 0 && diffs<2 && i!=this.originalCol) {
                 reflectline = i;
                 this.totaldiffs += diffs;
@@ -148,6 +149,7 @@ class Note {
                         this.failedColReflects.push(i);
                         reflectline = 0;
                         this.totaldiffs = 0;
+                        diffUsed = false;
                         continue
                     }
                     this.totaldiffs += diffs;
