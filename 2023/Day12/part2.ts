@@ -13,7 +13,7 @@ function getNumber(partstr:string): number {
 
 // Extract End Hashes
 function extractEndHashes(inputString: string): string {
-    const match = inputString.match(/#+$/);
+    const match = inputString.match(/[\?#]+$/);
     return match ? match[0] : '';
 }
 
@@ -97,7 +97,8 @@ function createPrefix(pattern:string,firstGroupLen:number,lastGroupLen:number):s
     if(pattern.endsWith('.')) {
         return '?';
     }
-    return (pattern + "?").slice(-firstGroupLen);
+    //return (pattern + "?").slice(-firstGroupLen);
+    return '?';
 }
 
 // Create postfix
