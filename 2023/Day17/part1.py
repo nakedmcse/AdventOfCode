@@ -22,7 +22,6 @@ def inlayout(pos, arr):
 	return pos[0] in range(len(arr)) and pos[1] in range(len(arr[0]))
 
 # Dijkstra - modded
-# Dijkstra - modded
 def dmod(mindist, maxdist):
 	# cost, x, y, disallowed dir
 	q = [(0, 0, 0, -1)]
