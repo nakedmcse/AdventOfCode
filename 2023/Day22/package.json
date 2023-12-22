@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "@types/node": "^20.10.5"
+  },
+  "name": "day22adventofcode",
+  "version": "1.0.0",
+  "description": "Advent of Code Day 22",
+  "main": "index.js",
+  "dependencies": {
+    "undici-types": "^5.26.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Walker",
+  "license": "ISC"
+}
