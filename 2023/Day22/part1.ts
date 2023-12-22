@@ -1,6 +1,5 @@
 // Day 22 Part 1
 import * as fs from 'fs';
-import test from 'node:test';
 
 // Vector class
 class Vector {
@@ -19,8 +18,12 @@ class Brick {
         }
     }
 
+    public toString():string {
+        return "(" + this.start.x + "," + this.start.y + "," + this.start.z + "-" + this.end.x + "," + this.end.y + "," + this.end.z + ")";
+    }
+
     public supportingBricks(bricks:Brick[]):number {
-        let filtered = bricks.filter(b => b.start.z == this.start.z-1 && this.planeCollides(b));
+        let filtered = bricks.filter(b => b.end.z == this.start.z-1 && this.planeCollides(b));
         return filtered.length;
     }
 
@@ -32,16 +35,20 @@ class Brick {
 
     public fallBrick(bricks:Brick[]) {
         if(this.start.z == 1 || this.end.z == 1) return; //Nothing to do
-        for(let i = this.start.z-1; i>0; i--) {
+        let collision:boolean = false;
+        let i = this.start.z-1
+        while(i>0 && !collision) {
             const testBrick = this.getTestBrick(i - this.start.z);
-            let collision:boolean = false;
             for(let brick of bricks) {
                 if(this.id != brick.id && brick.brickCollides(testBrick)) {
+                    console.log("Brick " + brick.id + brick.toString() +  " collided with " + testBrick.id + testBrick.toString());
                     collision = true;
                 }
-            if (collision) break;
-            this.start.z = testBrick.start.z;
-            this.end.z = testBrick.end.z;
+            }
+            if (!collision) {
+                this.start.z = testBrick.start.z;
+                this.end.z = testBrick.end.z;
+                i--;
             }
         }
     }
@@ -76,7 +83,7 @@ class Brick {
 }
 
 // Read input file
-const fileData: string = fs.readFileSync('sample.txt','utf8');
+const fileData: string = fs.readFileSync('inputfile.txt','utf8');
 const lines: string[] = fileData.split('\n');
 
 // Get number
@@ -111,32 +118,21 @@ for(let line of lines) {
 
 // Make bricks fall
 bricks.sort((a,b) => a.start.z - b.start.z);
-/*
-let ni:number = 1;
-let lastSeenZ:number = 1;
-for (let brick of bricks) {
-    if(brick.start.z > lastSeenZ) {
-        ni++;
-        lastSeenZ = brick.start.z;
-    }
-    let diff:number = lastSeenZ - ni;
-    brick.start.z -= diff;
-    brick.end.z -= diff;
-}
-*/
 for(let brick of bricks) {
     brick.fallBrick(bricks);
 }
 
 // Find bricks whose bricks directly above have more than one support
 for (let brick of bricks) {
-    let bricksAbove = bricks.filter(b => b.start.z == brick.start.z+1 && brick.planeCollides(b));
+    let bricksAbove = bricks.filter(b => b.start.z == brick.end.z+1 && brick.planeCollides(b));
     if(bricksAbove.length == 0) {
+        console.log("Brick " + brick.id + " has nothing above it");
         sum++;
         continue;
     }
     let moreThanOneSupport = bricksAbove.filter(b => b.supportingBricks(bricks)>1);
     if(bricksAbove.length == moreThanOneSupport.length) {
+        console.log("Brick " + brick.id + " has bricks above with more than 1 supporting brick");
         sum++;
     }
 }
