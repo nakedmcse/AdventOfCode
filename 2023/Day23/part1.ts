@@ -1,6 +1,5 @@
 // Day 23 Part 1
 import * as fs from 'fs';
-import { cpuUsage } from 'process';
 
 // Queue implementation
 interface queueInterface<Type> {
@@ -35,37 +34,98 @@ class QueueClass<Type> implements queueInterface<Type> {
     }
 }
 
+class Point {
+    public constructor(public x:number, public y:number){}
+}
+
+class State {
+    public constructor(public Loc:Point, public Dist:number, public Path:Point[] = []) {}
+}
+
 // Get number
 function getNumber(partstr:string): number {
     const matches = partstr.match(/\-?\d+/g);
     return matches && matches[0] ? parseInt(matches[0]) : 0;
 }
 
+// Path visualizer
+function pathVisualizer(path:Point[]) {
+    let x:number = 0;
+    let y:number = 0;
+    const slopes:String = "<>^v";
+    for(let line of map) {
+        let output:String = "";
+        x = 0;
+        for(let char of line) {
+            const onPath:number = path.filter(p => p.x == x && p.y == y).length;
+            const outChar:string = slopes.includes(map[y][x]) ? map[y][x] : "o";
+            output = output + (onPath == 0 ? map[y][x] : outChar);
+            x++;
+        }
+        console.log(output);
+        y++;
+    }
+}
+
 // DFS based map walk
 function dfsWalk(sx:number, sy:number, ex:number, ey:number): number {
     let retval:number = 0;
-    let processQ = new QueueClass<number[]>();
-    processQ.enqueue([sx,sy,0]);
+    let processQ = new QueueClass<State>();
+    let winners:State[] = [];
+    processQ.enqueue(new State(new Point(sx,sy),0));
 
     while(!processQ.isEmpty()) {
-        let currentLoc = processQ.dequeue() ?? [0,0,0];
-        if(currentLoc[0]==ex && currentLoc[1]==ey) {
-            if(currentLoc[2]>retval) retval = currentLoc[2];
+        let currentLoc = processQ.dequeue() ?? new State(new Point(0,0),0);
+        if(currentLoc.Loc.x==ex && currentLoc.Loc.y==ey) {
+            winners.push(currentLoc);
+            if(currentLoc.Dist>retval) retval = currentLoc.Dist;
             continue;
         }
-        if(currentLoc[0]-1 >= 0) {
-            if(!"#>".includes(map[currentLoc[1]][currentLoc[0]-1])) processQ.enqueue([currentLoc[0]-1,currentLoc[1],currentLoc[2]+1]);
+        if(currentLoc.Loc.x-1 >= 0) {
+            if(!"#>".includes(map[currentLoc.Loc.y][currentLoc.Loc.x-1])) {
+                let nxtPt:Point = new Point(currentLoc.Loc.x-1,currentLoc.Loc.y);
+                if(currentLoc.Path.filter(p => p.x == nxtPt.x && p.y == nxtPt.y).length == 0) {
+                    let newPath:Point[] = Array.from(currentLoc.Path);
+                    newPath.push(nxtPt);
+                    processQ.enqueue(new State(nxtPt,currentLoc.Dist+1,newPath));
+                }
+            }
         }
-        if(currentLoc[0]+1 < map[0].length) {
-            if(!"#<".includes(map[currentLoc[1]][currentLoc[0]+1])) processQ.enqueue([currentLoc[0]+1,currentLoc[1],currentLoc[2]+1]);
+        if(currentLoc.Loc.x+1 < map[0].length) {
+            if(!"#<".includes(map[currentLoc.Loc.y][currentLoc.Loc.x+1])) {
+                let nxtPt:Point = new Point(currentLoc.Loc.x+1,currentLoc.Loc.y);
+                if(currentLoc.Path.filter(p => p.x == nxtPt.x && p.y == nxtPt.y).length == 0) {
+                    let newPath:Point[] = Array.from(currentLoc.Path);
+                    newPath.push(nxtPt);
+                    processQ.enqueue(new State(nxtPt,currentLoc.Dist+1,newPath));
+                }
+            }
         }
-        if(currentLoc[1]-1 >= 0) {
-            if(!"#V".includes(map[currentLoc[1]-1][currentLoc[0]])) processQ.enqueue([currentLoc[0],currentLoc[1]-1,currentLoc[2]+1]);
+        if(currentLoc.Loc.y-1 >= 0) {
+            if(!"#v".includes(map[currentLoc.Loc.y-1][currentLoc.Loc.x])) {
+                let nxtPt:Point = new Point(currentLoc.Loc.x,currentLoc.Loc.y-1);
+                if(currentLoc.Path.filter(p => p.x == nxtPt.x && p.y == nxtPt.y).length == 0) {
+                    let newPath:Point[] = Array.from(currentLoc.Path);
+                    newPath.push(nxtPt);
+                    processQ.enqueue(new State(nxtPt,currentLoc.Dist+1,newPath));
+                }
+            }
         }
-        if(currentLoc[1]+1 < map.length) {
-            if(!"#^".includes(map[currentLoc[1]+1][currentLoc[0]])) processQ.enqueue([currentLoc[0],currentLoc[1]+1,currentLoc[2]+1]);
+        if(currentLoc.Loc.y+1 < map.length) {
+            if(!"#^".includes(map[currentLoc.Loc.y+1][currentLoc.Loc.x])) {
+                let nxtPt = new Point(currentLoc.Loc.x,currentLoc.Loc.y+1);
+                if(currentLoc.Path.filter(p => p.x == nxtPt.x && p.y == nxtPt.y).length == 0) {
+                    let newPath:Point[] = Array.from(currentLoc.Path);
+                    newPath.push(nxtPt);
+                    processQ.enqueue(new State(nxtPt,currentLoc.Dist+1,newPath));
+                }
+            }
         }
     }
+
+    // DEBUG - diff path 6 (x) and path 5 (yes)
+    //const pathDiff:Point[] = winners[6].Path.filter(x => winners[5].Path.filter(y => y.x == x.x && y.y == x.y).length == 0);
+    //pathVisualizer(winners[6].Path);
 
     return retval;
 }
@@ -119,7 +179,7 @@ let startx:number = 0;
 let endx:number = 0;
 
 // Read input file
-const fileData: string = fs.readFileSync('sample.txt','utf8');
+const fileData: string = fs.readFileSync('inputfile.txt','utf8');
 const lines: string[] = fileData.split('\n');
 
 // Loop lines into map
