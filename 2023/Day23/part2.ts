@@ -36,6 +36,9 @@ class QueueClass<Type> implements queueInterface<Type> {
 
 class Point {
     public constructor(public x:number, public y:number){}
+    public equals(other: Point): boolean {
+        return this.x === other.x && this.y === other.y;
+    }
 }
 
 class State {
@@ -59,6 +62,11 @@ function pathVisualizer(path:Point[]) {
         console.log(output);
         y++;
     }
+}
+
+// Helper function for set points
+function containsPoint(set: Set<Point>, point: Point): boolean {
+    return Array.from(set).some(p => p.equals(point));
 }
 
 // DFS based map walk
@@ -166,6 +174,86 @@ function dpWalk(sx:number, sy:number, ex:number):number[][][] {
     return dp;
 }
 
+// Find intersections
+function getIntersections(): Point[] {
+    const intersections:Point[] = [];
+    const allowed = ".<>v^";
+
+    for (let y = 0; y < map.length; y++) {
+        for (let x = 0; x < map[0].length; x++) {
+            if (allowed.includes(map[y][x])) {
+                let neighbors = [
+                map[y][x - 1],
+                map[y][x + 1],
+                map[y - 1]?.[x],
+                map[y + 1]?.[x],
+                ].filter((x) => x === "#");
+    
+                if (neighbors.length < 2) {
+                    intersections.push(new Point(x, y));
+                }
+            }
+        }
+    }
+    return intersections;
+}
+
+// Find connections between intersections
+function getConnections(intersect:Point[]): Map<Point, State[]> {
+    const connections = new Map<Point, State[]>();
+
+    for (const i of intersect) {
+        connections.set(i,[]);
+    }
+
+    for (const i of intersect) {
+        let processQ = new QueueClass<State>();
+        const visited = new Set<Point>([i]);
+
+        processQ.enqueue(new State(i,0));
+        while(!processQ.isEmpty()) {
+            let currentLoc = processQ.dequeue() ?? new State(new Point(0,0),0);
+
+            if(currentLoc.Dist!=0 && intersect.filter(z => z.x == currentLoc.Loc.x && z.y == currentLoc.Loc.y).length == 1) {
+                connections.get(i)?.push(currentLoc);
+                continue;
+            }
+
+            const neighbors = [
+                new Point(currentLoc.Loc.x-1,currentLoc.Loc.y),
+                new Point(currentLoc.Loc.x+1,currentLoc.Loc.y),
+                new Point(currentLoc.Loc.x,currentLoc.Loc.y-1),
+                new Point(currentLoc.Loc.x,currentLoc.Loc.y+1)
+            ].filter(p => p.x >= 0 && p.y >= 0 && p.x<map[0].length && p.y < map.length && map[p.y][p.x] != "#");
+
+            for (const n of neighbors) {
+                if(!containsPoint(visited,n)) {
+                    processQ.enqueue(new State(n,currentLoc.Dist+1));
+                    visited.add(n);
+                }
+            }
+        }
+    }
+
+    return connections;
+}
+
+// Find longest path in connections
+function getLongestPath(connections:Map<Point,State[]>, current:Point, end:Point, visited:Set<Point> = new Set<Point>()): number {
+    if(current.x == end.x && current.y == end.y) return 0;
+
+    let retval:number = 0;
+
+    visited.add(current);
+    for(let st of connections.get(current) ?? [new State(new Point(0,0),0)]) {
+        if(!containsPoint(visited,st.Loc)) {
+            retval = Math.max(retval, st.Dist + getLongestPath(connections, st.Loc, end, visited));
+        }
+    }
+    visited.delete(current);
+    return retval;
+}
+
 // Globals
 let map:string[][] = [];
 let sum:number = 0;
@@ -193,7 +281,12 @@ for (let c of map[map.length-1]) {
 // Walk the maze
 //const dpTable = dpWalk(startx,0,endx);
 //sum = dpTable[endx][map.length-1][Dir.down];
-sum = dfsWalk(startx,0,endx,map.length-1);
+//sum = dfsWalk(startx,0,endx,map.length-1);
+const start = new Point(startx,0);
+const end = new Point(endx,map.length-1);
+const inters = [start,end,...getIntersections()];
+const conns = getConnections(inters);
+sum = getLongestPath(conns,start,end);
 
 // Dumpit to Crumpit
 console.log("PART 2");
