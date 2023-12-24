@@ -96,6 +96,34 @@ function onSameLine(p1:Vector, p2:Vector, p3:Vector):boolean {
     return (crossProd.x == 0 && crossProd.y == 0 && crossProd.z ==0);
 }
 
+// Calc forward point
+function calcTimeline(p1:Hail, t:number):Vector {
+    let retval:Vector = new Vector(p1.position.x + t*p1.velocity.x, 
+        p1.position.y + t*p1.velocity.y, 
+        p1.position.z + t*p1.velocity.z);
+    return retval;
+}
+
+// More LCM bullshit
+function lcm(a: number, b: number): number {
+    // Implement the Least Common Multiple function
+    function gcd(a: number, b: number): number {
+        return b ? gcd(b, a % b) : a;
+    }
+    return Math.abs(a * b) / gcd(a, b);
+}
+
+// Calc align using LCM
+function calcLCMAlignment(h1:Hail, h2:Hail, h3:Hail):number | null {
+    let lcmX = lcm(lcm(h1.velocity.x, h2.velocity.x), h3.velocity.x);
+    let lcmY = lcm(lcm(h1.velocity.y, h2.velocity.y), h3.velocity.y);
+    let lcmZ = lcm(lcm(h1.velocity.z, h2.velocity.z), h3.velocity.z);
+
+    let timeStep = lcm(lcm(lcmX,lcmY),lcmZ);
+
+    return timeStep;
+}
+
 // Globals
 const hails:Hail[] = [];
 let testMin:number = 200000000000000, testMax:number = 400000000000000;
@@ -117,15 +145,17 @@ for(let line of lines) {
 let minSpeed:number = 99999, minSpeedId:number = 0;
 let maxSpeed:number = 0, maxSpeedId:number = 0;
 for(let current of hails) {
-    console.log("Processing trails for id " + current.id + " of " + (hails.length-1));
+    //console.log("Processing trails for id " + current.id + " of " + (hails.length-1));
     let cvec = new Vector(current.position.x, current.position.y, current.position.z);
     current.history.push(new Vector(cvec.x, cvec.y, cvec.z)); //origin
+    /*
     for(let i = 0; i<100000; i++) {
         cvec.x += current.velocity.x;
         cvec.y += current.velocity.y;
         cvec.z += current.velocity.z;
         current.history.push(new Vector(cvec.x, cvec.y, cvec.z)); 
     }
+    */
 
     if(Math.abs(current.speed)<minSpeed) {
         minSpeedId = current.id;
@@ -144,14 +174,25 @@ const fastestHail = hails.find(b => b.id == maxSpeedId) ?? new Hail(new Vector(0
 const slowestHail = hails.find(b => b.id == minSpeedId) ?? new Hail(new Vector(0,0,0), new Vector(0,0,0), -1);
 
 // Try to find a point that all lie on the same line
-for(let t=0; t<100000; t++) {
-    if(onSameLine(fastestHail.history[t], slowestHail.history[t], hails[0].history[t])) {
-        console.log("Time index " + t + " has points in a line");
-        break;
+/*
+for(let c=0; c<10000; c++) {
+    // Chunked to ten beeeeelion
+    console.log("Starting chunk " + c*100000);
+    for(let t=c*100000; t<(c+1)*100000; t++) {
+        if(onSameLine(calcTimeline(fastestHail,t), calcTimeline(slowestHail,t), calcTimeline(hails[0],t))) {
+            console.log("Time index " + t + " has points in a line");
+            break;
+        }
     }
 }
+*/
+
+sum = calcLCMAlignment(fastestHail,slowestHail,hails[0]) ?? 0;
+console.log(onSameLine(calcTimeline(fastestHail,sum),calcTimeline(slowestHail,sum),calcTimeline(hails[0],sum)));
+console.log(onSameLine(calcTimeline(fastestHail,Math.abs(sum)),calcTimeline(slowestHail,Math.abs(sum)),calcTimeline(hails[0],Math.abs(sum))));
 
 console.log(onSameLine(new Vector(1,1,1), new Vector(3,3,3), new Vector(2,2,2)));
+console.log(onSameLine(new Vector(-1,-1,-1), new Vector(3,3,3), new Vector(2,2,2)));
 
 // Dumpit to Crumpit
 console.log("PART 2");
