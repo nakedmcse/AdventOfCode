@@ -9,8 +9,10 @@ class Vector {
 // Hail class
 class Hail {
     public history:Vector[];
+    public speed:number;
     public constructor(public position:Vector, public velocity:Vector, public id:number) {
         this.history = [];
+        this.speed = Math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2);
     }
 }
 
@@ -68,6 +70,32 @@ function isPast(hailstone:Hail,point:Vector):boolean {
     return pastX && pastY;
 }
 
+// Subtract Vectors
+function subtractVectors(a:Vector, b:Vector):Vector {
+    let retval = new Vector(0,0,0);
+    retval.x = a.x - b.x;
+    retval.y = a.y - b.y;
+    retval.z = a.z - b.z;
+    return retval;
+}
+
+// Cross Product
+function crossProduct(a:Vector, b:Vector):Vector {
+    let retval = new Vector(0,0,0);
+    retval.x = a.y*b.z - a.z*b.y;
+    retval.y = a.z*b.x - a.x*b.z;
+    retval.z = a.x*b.y - a.y*b.x;
+    return retval;
+}
+
+// Points on same line
+function onSameLine(p1:Vector, p2:Vector, p3:Vector):boolean {
+    const vectorAB = subtractVectors(p2, p1);
+    const vectorAC = subtractVectors(p3, p1);
+    const crossProd = crossProduct(vectorAB, vectorAC);
+    return (crossProd.x == 0 && crossProd.y == 0 && crossProd.z ==0);
+}
+
 // Globals
 const hails:Hail[] = [];
 let testMin:number = 200000000000000, testMax:number = 400000000000000;
@@ -86,17 +114,44 @@ for(let line of lines) {
 }
 
 // Get map of position trails for each hail
+let minSpeed:number = 99999, minSpeedId:number = 0;
+let maxSpeed:number = 0, maxSpeedId:number = 0;
 for(let current of hails) {
     console.log("Processing trails for id " + current.id + " of " + (hails.length-1));
     let cvec = new Vector(current.position.x, current.position.y, current.position.z);
     current.history.push(new Vector(cvec.x, cvec.y, cvec.z)); //origin
-    for(let i = 0; i<10000; i++) {
+    for(let i = 0; i<100000; i++) {
         cvec.x += current.velocity.x;
         cvec.y += current.velocity.y;
         cvec.z += current.velocity.z;
         current.history.push(new Vector(cvec.x, cvec.y, cvec.z)); 
     }
+
+    if(Math.abs(current.speed)<minSpeed) {
+        minSpeedId = current.id;
+        minSpeed = Math.abs(current.speed);
+    }
+
+    if(Math.abs(current.speed)>maxSpeed) {
+        maxSpeedId = current.id;
+        maxSpeed = Math.abs(current.speed);
+    }
+
 }
+
+// Idea - get speed of slowest and fastest, create line between them and iterate origin point
+const fastestHail = hails.find(b => b.id == maxSpeedId) ?? new Hail(new Vector(0,0,0), new Vector(0,0,0), -1);
+const slowestHail = hails.find(b => b.id == minSpeedId) ?? new Hail(new Vector(0,0,0), new Vector(0,0,0), -1);
+
+// Try to find a point that all lie on the same line
+for(let t=0; t<100000; t++) {
+    if(onSameLine(fastestHail.history[t], slowestHail.history[t], hails[0].history[t])) {
+        console.log("Time index " + t + " has points in a line");
+        break;
+    }
+}
+
+console.log(onSameLine(new Vector(1,1,1), new Vector(3,3,3), new Vector(2,2,2)));
 
 // Dumpit to Crumpit
 console.log("PART 2");
