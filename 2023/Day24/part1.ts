@@ -67,11 +67,11 @@ function isPast(hailstone:Hail,point:Vector):boolean {
 
 // Globals
 const hails:Hail[] = [];
-let testMin:number = 7, testMax:number = 27;
+let testMin:number = 200000000000000, testMax:number = 400000000000000;
 let sum:number = 0;
 
 // Read input file
-const fileData: string = fs.readFileSync('sample.txt','utf8');
+const fileData: string = fs.readFileSync('inputfile.txt','utf8');
 const lines: string[] = fileData.split('\n');
 
 // Loop lines
