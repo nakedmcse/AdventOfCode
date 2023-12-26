@@ -42,6 +42,11 @@ class Component {
     }
 }
 
+// Class for edge
+class Edge {
+    public uses:number = 0;
+    public constructor(public a:number, public b:number){}
+}
 
 // Get number
 function getNumber(partstr:string): number {
@@ -50,7 +55,7 @@ function getNumber(partstr:string): number {
 }
 
 // Find reachable nodes
-function reachableNodes(node:Component):Set<number> {
+function reachableNodes(thisgraph:Component[], node:Component):Set<number> {
     const retval = new Set<number>();
     const processQ = new QueueClass<number>();
     processQ.enqueue(node.id);
@@ -62,7 +67,34 @@ function reachableNodes(node:Component):Set<number> {
                 continue;  // been here
             }
             retval.add(curId);
-            let nodeDef = graph.find(g => g.id === curId);
+            let nodeDef = thisgraph.find(g => g.id === curId);
+            if(nodeDef) {
+                nodeDef.links.map(l => processQ.enqueue(l)); // follow links
+            }
+        }
+    }
+
+    return retval
+}
+
+// Find path
+function findPath(thisgraph:Component[], nodeA:Component, nodeB:Component):Set<number> {
+    const retval = new Set<number>();
+    const processQ = new QueueClass<number>();
+    processQ.enqueue(nodeA.id);
+
+    while(!processQ.isEmpty()) {
+        let curId = processQ.dequeue() ?? -1;
+        if(curId!==-1) {
+            if(curId === nodeB.id) {
+                retval.add(curId);  // end point
+                break;
+            }
+            if(retval.has(curId)) {
+                continue;  // been here
+            }
+            retval.add(curId);
+            let nodeDef = thisgraph.find(g => g.id === curId);
             if(nodeDef) {
                 nodeDef.links.map(l => processQ.enqueue(l)); // follow links
             }
@@ -107,6 +139,26 @@ function findBridges(): [number,number][] {
         }
     }
     return bridges;
+}
+
+// Remove nodes from graph
+function removeNodes(nodeIds:number[]):Component[] {
+    let retval:Component[] = [];
+    // Remove nodes
+    retval = graph.filter(g => !nodeIds.includes(g.id));
+    // Remove links
+    retval.forEach((value) => {value.links = value.links.filter(l => !nodeIds.includes(l))});
+    return retval;
+}
+
+// Cut link
+function cutLink(nodeAId:number, nodeBId:number):Component[] {
+    const retval:Component[] = Array.from(graph);  //copy graph
+    const linkNodes:number[] = [nodeAId,nodeBId];
+
+    retval.forEach((value) => {if(linkNodes.includes(value.id)) value.links = value.links.filter(l => !linkNodes.includes(l))});
+
+    return retval;
 }
 
 // Globals
@@ -158,9 +210,26 @@ for(let line of lines) {
 }
 
 // Make sure graph is fully connected
-sum = reachableNodes(graph[0]).size;
+const unusedNodes:Component[] = Array.from(graph);
+const paths:Map<number,number[]> = new Map<number, number[]>();
+const uses:Map<number, number> = new Map<number, number>();
+sum = reachableNodes(graph,graph[0]).size;
 graph.forEach((value) => {linksum += value.links.length});
-//let bridges = findBridges();
+
+// Get 200 random paths
+for(let i=0; i<200; i++) {
+    let nodeAIdx:number = Math.random() * unusedNodes.length-1;
+    let nodeA:Component = unusedNodes.splice(nodeAIdx,1)[0];
+    let nodeBIdx:number = Math.random() * unusedNodes.length-1;
+    let nodeB:Component = unusedNodes.splice(nodeBIdx,1)[0];
+    const path = Array.from(findPath(graph,nodeA,nodeB));
+    paths.set(i,path);
+    path.forEach((value) => {uses.set(value,(uses.get(value) ?? 0) + 1)});
+}
+
+// Sort node usage
+const sortedUsage:Map<number,number> = new Map([...uses.entries()].sort((a,b) => b[1]-a[1]));
+console.log(sortedUsage);
 
 // Dumpit to Crumpit
 console.log("PART 1");
