@@ -7,7 +7,12 @@ export class AocPoint {
 }
 
 export class AocPolygon {
-    public constructor(public vertexes: AocPoint[]) {}
+    public constructor(public vertexes: AocPoint[]) {
+        if (!(vertexes[0].x === vertexes[vertexes.length-1].x && vertexes[0].y === vertexes[vertexes.length-1].y)) {
+            vertexes.push(new AocPoint(vertexes[0].x, vertexes[0].y));
+        }
+        this.vertexes = vertexes;
+    }
 
     // Bounding Box
     public boundingBox(): AocPoint[] {
@@ -36,6 +41,13 @@ export class AocPolygon {
         return null;
     }
 
+    // Line length
+    private lineLength(a: AocPoint, b: AocPoint): number {
+        const xdiff: number = Math.abs(a.x - b.x);
+        const ydiff: number = Math.abs(a.y - b.y);
+        return Math.sqrt(xdiff**2 + ydiff**2);
+    }
+
     // Point in polygon
     public pointIn(point: AocPoint): boolean {
         // Check bounding box first
@@ -57,7 +69,21 @@ export class AocPolygon {
 
     // Area of polygon
     public area(): number {
-        return 0;
+        let area: number = 0;
+        for(let i = 1; i < this.vertexes.length; i++) {
+            area += this.vertexes[i-1].x * this.vertexes[i].y;
+            area -= this.vertexes[i-1].y * this.vertexes[i].x;
+        }
+        return Math.abs(area/2);
+    }
+
+    // Perimeter of polygon
+    public perimeter(): number {
+        let perim: number = 0;
+        for(let i = 1; i < this.vertexes.length; i++) {
+            perim += this.lineLength(this.vertexes[i-1], this.vertexes[i]);
+        }
+        return perim;
     }
 }
 

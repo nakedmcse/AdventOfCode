@@ -61,8 +61,7 @@ describe("unit tests", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
                 new AocPoint(0,10),
                 new AocPoint(10, 0),
-                new AocPoint(0, -10),
-                new AocPoint(-10,0)]);
+                new AocPoint(0, -10)]);
             expect(poly.boundingBox()).toEqual([new AocPoint(-10,-10), new AocPoint(10,10)]);
         })
     })
@@ -72,8 +71,7 @@ describe("unit tests", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
                 new AocPoint(0,10),
                 new AocPoint(10, 0),
-                new AocPoint(0, -10),
-                new AocPoint(-10,0)]);
+                new AocPoint(0, -10)]);
             const point:AocPoint = new AocPoint(2, 2);
             expect(poly.pointIn(point)).toEqual(true);
         })
@@ -82,10 +80,35 @@ describe("unit tests", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
                 new AocPoint(0,10),
                 new AocPoint(10, 0),
-                new AocPoint(0, -10),
-                new AocPoint(-10,0)]);
+                new AocPoint(0, -10)]);
             const point:AocPoint = new AocPoint(6, 6);
             expect(poly.pointIn(point)).toEqual(false);
+        })
+    })
+
+    describe("area", () => {
+        it("Polygon [0,0],[10,0],[10,10],[5,10],[5,20],[0,20]: Return 150", () => {
+            const poly:AocPolygon = new AocPolygon([new AocPoint(0, 0),
+                new AocPoint(10, 0),
+                new AocPoint(10, 10),
+                new AocPoint(5, 10),
+                new AocPoint(5, 20),
+                new AocPoint(0, 20)
+            ]);
+            expect(poly.area()).toEqual(150);
+        })
+    })
+
+    describe("perimeter", () => {
+        it("Polygon [0,0],[10,0],[10,10],[5,10],[5,20],[0,20]: Return 60", () => {
+            const poly:AocPolygon = new AocPolygon([new AocPoint(0, 0),
+                new AocPoint(10, 0),
+                new AocPoint(10, 10),
+                new AocPoint(5, 10),
+                new AocPoint(5, 20),
+                new AocPoint(0, 20)
+            ]);
+            expect(poly.perimeter()).toEqual(60);
         })
     })
 })
