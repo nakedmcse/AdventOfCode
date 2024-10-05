@@ -1,5 +1,5 @@
 // Advent of Code Helper Library Tests
-import {AocLib} from "./aocLib";
+import {AocLib, AocPoint, AocPolygon} from "./aocLib";
 import fs from "node:fs/promises";
 import {afterEach, describe, expect, it, vi} from "vitest";
 
@@ -53,6 +53,39 @@ describe("unit tests", () => {
             expect(
                 AocLib.lcm(12,18)
             ).toEqual(36);
+        })
+    })
+
+    describe("boundingBox", () => {
+        it("Polygon [-10,0],[0,10],[10,0],[0,-10]: Return [-10,-10],[10,10]", () => {
+            const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
+                new AocPoint(0,10),
+                new AocPoint(10, 0),
+                new AocPoint(0, -10),
+                new AocPoint(-10,0)]);
+            expect(poly.boundingBox()).toEqual([new AocPoint(-10,-10), new AocPoint(10,10)]);
+        })
+    })
+
+    describe("pointIn", () => {
+        it("Polygon [-10,0],[0,10],[10,0],[0,-10] Point [2,2]: Return True", () => {
+            const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
+                new AocPoint(0,10),
+                new AocPoint(10, 0),
+                new AocPoint(0, -10),
+                new AocPoint(-10,0)]);
+            const point:AocPoint = new AocPoint(2, 2);
+            expect(poly.pointIn(point)).toEqual(true);
+        })
+
+        it("Polygon [-10,0],[0,10],[10,0],[0,-10] Point [6,6]: Return False", () => {
+            const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
+                new AocPoint(0,10),
+                new AocPoint(10, 0),
+                new AocPoint(0, -10),
+                new AocPoint(-10,0)]);
+            const point:AocPoint = new AocPoint(6, 6);
+            expect(poly.pointIn(point)).toEqual(false);
         })
     })
 })
