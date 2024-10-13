@@ -87,6 +87,39 @@ export class AocPolygon {
     }
 }
 
+// Queue class
+interface queueInterface<Type> {
+    enqueue(dataItem: Type): void;
+    dequeue(): Type | undefined;
+    get isEmpty(): boolean;
+    get size(): number;
+}
+
+export class AocQueue<T> implements queueInterface<T>{
+    private queue: Array<T> = [];
+
+    public constructor() {}
+
+    public get isEmpty(): boolean {
+        return this.queue.length <= 0;
+    }
+
+    public get size(): number {
+        return this.queue.length;
+    }
+
+    public enqueue(item: T): void {
+        this.queue.push(item);
+    }
+
+    public dequeue(): T | undefined {
+        if (this.isEmpty) {
+            return;
+        }
+        return this.queue.shift();
+    }
+}
+
 // Library
 export class AocLib {
     // Read file to array of lines

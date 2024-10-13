@@ -1,5 +1,5 @@
 // Advent of Code Helper Library Tests
-import {AocLib, AocPoint, AocPolygon} from "./aocLib";
+import {AocLib, AocPoint, AocPolygon, AocQueue} from "./aocLib";
 import fs from "node:fs/promises";
 import {afterEach, describe, expect, it, vi} from "vitest";
 
@@ -56,7 +56,7 @@ describe("unit tests", () => {
         })
     })
 
-    describe("boundingBox", () => {
+    describe("polygon - boundingBox", () => {
         it("Polygon [-10,0],[0,10],[10,0],[0,-10]: Return [-10,-10],[10,10]", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
                 new AocPoint(0,10),
@@ -66,7 +66,7 @@ describe("unit tests", () => {
         })
     })
 
-    describe("pointIn", () => {
+    describe("polygon - pointIn", () => {
         it("Polygon [-10,0],[0,10],[10,0],[0,-10] Point [2,2]: Return True", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),
                 new AocPoint(0,10),
@@ -86,7 +86,7 @@ describe("unit tests", () => {
         })
     })
 
-    describe("area", () => {
+    describe("polygon - area", () => {
         it("Polygon [0,0],[10,0],[10,10],[5,10],[5,20],[0,20]: Return 150", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(0, 0),
                 new AocPoint(10, 0),
@@ -99,7 +99,7 @@ describe("unit tests", () => {
         })
     })
 
-    describe("perimeter", () => {
+    describe("polygon - perimeter", () => {
         it("Polygon [0,0],[10,0],[10,10],[5,10],[5,20],[0,20]: Return 60", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(0, 0),
                 new AocPoint(10, 0),
@@ -109,6 +109,49 @@ describe("unit tests", () => {
                 new AocPoint(0, 20)
             ]);
             expect(poly.perimeter()).toEqual(60);
+        })
+    })
+
+    describe("queue - enqueue/dequeue", () => {
+        it("Enqueue 1,2,3: Dequeue 1,2,3", () => {
+            const queue:AocQueue<number> = new AocQueue<number>();
+            queue.enqueue(1);
+            queue.enqueue(2);
+            queue.enqueue(3);
+            expect(queue.dequeue()).toEqual(1);
+            expect(queue.dequeue()).toEqual(2);
+            expect(queue.dequeue()).toEqual(3);
+        })
+    })
+
+    describe("queue - size", () => {
+        it("Enqueue 1,2,3: Size returns 3", () => {
+            const queue:AocQueue<number> = new AocQueue<number>();
+            queue.enqueue(1);
+            queue.enqueue(2);
+            queue.enqueue(3);
+            expect(queue.size).toEqual(3);
+        })
+    })
+
+    describe("queue - isEmpty", () => {
+        it("Enqueue 1,2,3: isEmpty returns false", () => {
+            const queue:AocQueue<number> = new AocQueue<number>();
+            queue.enqueue(1);
+            queue.enqueue(2);
+            queue.enqueue(3);
+            expect(queue.isEmpty).toEqual(false);
+        })
+
+        it("Enqueue 1,2,3, Dequeue 3 items: isEmpty returns true", () => {
+            const queue:AocQueue<number> = new AocQueue<number>();
+            queue.enqueue(1);
+            queue.enqueue(2);
+            queue.enqueue(3);
+            queue.dequeue();
+            queue.dequeue();
+            queue.dequeue();
+            expect(queue.isEmpty).toEqual(true);
         })
     })
 })
