@@ -1,6 +1,7 @@
 // Find the nearest prime number before a given number
 
 function checkPrime(given: number): boolean {
+    if(given === 1) return false;
     if(given < 4) return true;
     if(given %2 === 0) return false;
 
@@ -13,7 +14,7 @@ function checkPrime(given: number): boolean {
     }
     for(let i = 2; i<max; i += 2) {
         if(!notPrimes[i]) {
-            if(given % (i+1) == 0) return false;
+            if(given % (i+1) === 0) return false;
         }
     }
     return true;
