@@ -5,23 +5,15 @@ function checkPrime(given: number): boolean {
     if(given %2 === 0) return false;
 
     const max: number = Math.floor(Math.sqrt(given));
-
     const notPrimes: boolean[] = [];
     if(max > 8) {
         for(let i = 3; i <= max; i += 2) {
-            if(!notPrimes[i-1]) {
-                for(let j = i*3-1; j<max; j += i+2*j) {
-                    notPrimes[j] = true;
-                }
-            }
+            if(!notPrimes[i-1]) for(let j = i*3-1; j<max; j += i+2*j) notPrimes[j] = true;
         }
     }
-
     for(let i = 2; i<max; i += 2) {
         if(!notPrimes[i]) {
-            if(given % (i+1) == 0) {
-                return false;
-            }
+            if(given % (i+1) == 0) return false;
         }
     }
     return true;
