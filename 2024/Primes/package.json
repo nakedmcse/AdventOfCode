@@ -1,0 +1,19 @@
+{
+  "name": "primes",
+  "version": "1.0.0",
+  "description": "Prime number challenge",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "run": "ts-node src/primeChallenge.ts",
+    "runjs": "node dist/primeChallenge.js",
+    "update_deps": "npx npm-check-updates"
+  },
+  "author": "Walker",
+  "license": "MIT",
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
