@@ -56,6 +56,17 @@ describe("unit tests", () => {
         })
     })
 
+    describe("bigSqrt", () => {
+        it("64: Return 8", () => {
+            expect(AocLib.bigSqrt(64n)).toEqual(8n);
+        })
+        it("2^64: Return 4294967296", () => {
+            const value: bigint = 2n**64n;
+            const retval: bigint = AocLib.bigSqrt(value);
+            expect(retval).toEqual(4294967296n);
+        })
+    })
+
     describe("polygon - boundingBox", () => {
         it("Polygon [-10,0],[0,10],[10,0],[0,-10]: Return [-10,-10],[10,10]", () => {
             const poly:AocPolygon = new AocPolygon([new AocPoint(-10,0),

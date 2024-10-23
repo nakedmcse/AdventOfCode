@@ -161,4 +161,21 @@ export class AocLib {
         const gcd: number = this.gcd(a, b);
         return (a*b)/gcd;
     }
+
+    // BigInt Square Root
+    public static bigSqrt(value: bigint): bigint {
+        if(value < 0n) return 0n;
+        if(value < 2n) return value;
+        if(value === 4n) return 2n;
+
+        function newton(n: bigint, x0: bigint): bigint {
+            const x1 = ((n / x0) + x0) >> 1n;
+            if (x0 === x1 || x0 === (x1 - 1n)) {
+                return x0;
+            }
+            return newton(n, x1);
+        }
+
+        return newton(value, 1n);
+    }
 }
