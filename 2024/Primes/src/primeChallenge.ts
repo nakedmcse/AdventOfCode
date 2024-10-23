@@ -1,4 +1,5 @@
 // Find the nearest prime number before a given number
+let notPrimes: boolean[] = [];
 
 function checkPrime(given: number): boolean {
     if(given === 1) return false;
@@ -6,9 +7,10 @@ function checkPrime(given: number): boolean {
     if(given %2 === 0) return false;
 
     const max: number = Math.floor(Math.sqrt(given));
-    const notPrimes: boolean[] = [];
-    if(max > 8) {
-        for(let i = 3; i <= max; i += 2) {
+    let start: number = 3;
+    if(max > notPrimes.length) start = notPrimes.length + 1;
+    if(max > 8 && max > notPrimes.length) {
+        for(let i = start; i <= max; i += 2) {
             if(!notPrimes[i-1]) for(let j = i*3-1; j<max; j += i+2*j) notPrimes[j] = true;
         }
     }
@@ -20,16 +22,19 @@ function checkPrime(given: number): boolean {
     return true;
 }
 
-// let primeBefore: number = 60;
-let primeBefore: number = 6_000_000_000;
-console.log(`Checking for prime before ${primeBefore}`);
+let primesBeforeList: number[] = [2**48, 2**44, 2**40, 2**32, 60, 6_000_000_000, 60_000_000_000]
+for(let primeBefore of primesBeforeList) {
+    const checkingFor = primeBefore;
+    const start: number = performance.now();
+    primeBefore = primeBefore % 2 === 0 ? primeBefore - 1 : primeBefore - 2;
+    while (primeBefore > 0 && !checkPrime(primeBefore)) {
+        primeBefore -= 2;
+    }
+    const end: number = performance.now();
 
-const start: number = performance.now();
-while(--primeBefore > 0 && !checkPrime(primeBefore)) {}
-const end: number = performance.now();
-
-if(primeBefore > 0) {
-    console.log(`First prime before is ${primeBefore} in ${(end - start).toFixed(4)}ms`);
-} else {
-    console.log(`No previous prime found in ${(end - start).toFixed(4)}ms`)
+    if (primeBefore > 0) {
+        console.log(`First prime before ${checkingFor} is ${primeBefore} in ${(end - start).toFixed(4)}ms`);
+    } else {
+        console.log(`No previous prime found in ${(end - start).toFixed(4)}ms`)
+    }
 }
