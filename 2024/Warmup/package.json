@@ -1,0 +1,21 @@
+{
+  "name": "warmup",
+  "version": "1.0.0",
+  "description": "AoC warmup",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "runpart1": "ts-node src/warmupPart1.ts",
+    "runjspart1": "node dist/warmupPart1.js",
+    "runpart2": "ts-node src/warmupPart2.ts",
+    "runjspart22": "node dist/warmupPart2.js",
+    "update_deps": "npx npm-check-updates"
+  },
+  "author": "Walker",
+  "license": "MIT",
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
