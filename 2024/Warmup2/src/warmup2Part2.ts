@@ -1,4 +1,4 @@
-// Warmup2 Part 1
+// Warmup2 Part 2
 import {AocLib} from "./aocLib";
 
 const circuit = new Map<string, string>();
@@ -81,6 +81,7 @@ async function main() {
             circuit.set(splitline[1], splitline[0]);
         }
 
+        circuit.set("b", "46065");
         processPath('a',path('a'));
     }
 }
