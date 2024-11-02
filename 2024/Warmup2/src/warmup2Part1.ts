@@ -32,6 +32,7 @@ function path(id: string): string[][] {
         }
     }
 
+    // Sort path by dependency
     const retval: string[][] = [];
     const reversedList = list.reverse();
     while (reversedList.length > 0) {
