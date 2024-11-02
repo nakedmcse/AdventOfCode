@@ -1,0 +1,20 @@
+{
+  "name": "warmup2",
+  "version": "1.0.0",
+  "description": "AoC Redo 2015 day 5",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "runw2part1": "ts-node src/warmup2Part1.ts",
+    "runjsw2part1": "node dist/warmup2Part1.js",
+    "runw2part2": "ts-node src/warmup2Part2.ts",
+    "runjsw2part22": "node dist/warmup2Part2.js",
+    "update_deps": "npx npm-check-updates"
+  },
+  "author": "Walker",
+  "license": "MIT",
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
