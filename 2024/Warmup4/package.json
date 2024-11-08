@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "runw4part1": "ts-node src/warmup4Part1.ts",
+    "runw4part1redux": "ts-node src/warmup4Part1redux.ts",
     "runw4part2": "ts-node src/warmup4Part2.ts",
     "update_deps": "npx npm-check-updates"
   },
