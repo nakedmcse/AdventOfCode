@@ -1,5 +1,5 @@
 // Advent of Code Helper Library Tests
-import {AocLib, AocPoint, AocPolygon, AocQueue} from "./aocLib";
+import {AocGraphNode, AocLib, AocPoint, AocPolygon, AocQueue} from "./aocLib";
 import fs from "node:fs/promises";
 import {afterEach, describe, expect, it, vi} from "vitest";
 
@@ -163,6 +163,44 @@ describe("unit tests", () => {
             queue.dequeue();
             queue.dequeue();
             expect(queue.isEmpty).toEqual(true);
+        })
+    })
+
+    describe("graph - addGraphNode", () => {
+        it("Add two nodes: verify both exist with links", () => {
+            const graph: AocGraphNode[] = [];
+            AocLib.addGraphNode(graph, "One", "Two", 1);
+            AocLib.addGraphNode(graph, "Two", "One", 2);
+            expect(graph.length).toEqual(2);
+            expect(graph[0].links.get("Two")).toEqual(1);
+            expect(graph[1].links.get("One")).toEqual(2);
+        })
+    })
+
+    describe("graph - getGraphIndex", () => {
+        it("Add two nodes: verify both can be found by name", () => {
+            const graph: AocGraphNode[] = [];
+            AocLib.addGraphNode(graph, "One", "Two", 1);
+            AocLib.addGraphNode(graph, "Two", "One", 2);
+            expect(AocLib.getGraphIndex(graph, "One")).toEqual(0);
+            expect(AocLib.getGraphIndex(graph, "Two")).toEqual(1);
+        })
+    })
+
+    describe("graph - bestConnectedGraphPath", () => {
+        it("Best path in graph: verify min and max path", () => {
+            const graph: AocGraphNode[] = [];
+            AocLib.addGraphNode(graph, "One", "Two", 1);
+            AocLib.addGraphNode(graph, "One", "Three", 2);
+            AocLib.addGraphNode(graph, "Two", "Three", 1);
+            AocLib.addGraphNode(graph, "Three", "Two", 2);
+            AocLib.addGraphNode(graph, "Two", "Four", 1);
+            AocLib.addGraphNode(graph, "Three", "Four", 2);
+            AocLib.addGraphNode(graph, "Four", "One", 0);  // necessary to detect end
+            expect(AocLib.bestConnectedGraphPath(graph,0, false, false, false))
+                .toEqual({cost: 4, path: ["One", "Two", "Three", "Four", "One"]});
+            expect(AocLib.bestConnectedGraphPath(graph,0, true, false, false))
+                .toEqual({cost: 5, path: ["One", "Three", "Two", "Four", "One"]});
         })
     })
 })
