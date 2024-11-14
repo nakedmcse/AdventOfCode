@@ -1,4 +1,4 @@
-//2015 day 15 part 1
+//2015 day 16 part 1
 import {AocLib} from "./aocLib";
 
 class auntie {
