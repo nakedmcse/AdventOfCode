@@ -2,39 +2,40 @@
 import {AocLib} from "./aocLib";
 
 const replacements: string[][] = [];
-const uniqueCombos: Map<string, number> = new Map<string, number>();
 
-function generateReplacements(base: string, o: string, r: string | undefined): void {
-    if(r === undefined) return;
+function generateReplacements(base: string, o: string, r: string | undefined): Map<string, number> {
+    const uniqueCombos: Map<string, number> = new Map<string, number>();
+    if(r === undefined) return uniqueCombos;
     const parts = base.split(o);
     for(let i =0; i<parts.length-1; i++) {
         const replacedInstance = parts.slice(0,i+1).join(o) + r + parts.slice(i+1).join(o);
         uniqueCombos.set(replacedInstance, 1);
     }
+    return uniqueCombos;
 }
 
 function constructPaths(target: string, start: string): string[][] {
     const paths: string[][] = [];
 
-    function findPaths(currentPath: string[], replacementIndex: number, currentStr: string) {
+    function findPaths(currentPath: string[], currentStr: string): void {
         if (currentStr === target) {
             paths.push([...currentPath]);
             return;
         }
 
-        for (let i = replacementIndex; i < replacements.length; i++) {
+        for (let i = 1; i < replacements.length; i++) {
             const replacement = replacements[i];
-
-
-            if (currentSum + num <= s) {
-                current.push(num);
-                findSubset(current, i + 1, currentSum + num);
-                current.pop();
+            const unique = generateReplacements(currentStr, replacement[0], replacement[1]);
+            currentPath.push(`${replacement[0]} => ${replacement[1]}`);
+            for(const combo of unique) {
+                findPaths(currentPath, combo[0]);
             }
+            currentPath.pop();
         }
     }
 
-    return path;
+    findPaths([], start);
+    return paths;
 }
 
 async function main() {
@@ -44,17 +45,17 @@ async function main() {
             if(line.includes("=>")) {
                 const matches = line.match(/(\w+) => (\w+)/);
                 if(matches) {
-                    replacements.push([matches[1],matches[2]]);
+                    replacements.push([matches[2],matches[1]]);
                 }
             }
         }
         const baseString = lines[lines.length-1];
 
-        for(const r of replacements) {
-            generateReplacements(baseString, r[0], r[1]);
-        }
+        const winningPaths = constructPaths('e', baseString);
+        let minLen = Infinity;
+        winningPaths.forEach(x => { if(x.length < minLen) minLen = x.length;});
 
-        console.log(`Part 1 Unique Combos: ${uniqueCombos.size}`);
+        console.log(`Part 2 Shortest Path: ${minLen}`);
     }
 }
 
