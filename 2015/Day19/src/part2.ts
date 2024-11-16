@@ -14,12 +14,14 @@ function generateReplacements(base: string, o: string, r: string | undefined): M
     return uniqueCombos;
 }
 
-function constructPaths(target: string, start: string): string[][] {
-    const paths: string[][] = [];
+function constructPaths(target: string, start: string): number {
+    let minPath = Infinity;
+    let winners = 0;
 
     function findPaths(currentPath: string[], currentStr: string): void {
         if (currentStr === target) {
-            paths.push([...currentPath]);
+            winners++;
+            if(currentPath.length < minPath) minPath = currentPath.length;
             return;
         }
 
@@ -27,6 +29,7 @@ function constructPaths(target: string, start: string): string[][] {
             const replacement = replacements[i];
             const unique = generateReplacements(currentStr, replacement[0], replacement[1]);
             currentPath.push(`${replacement[0]} => ${replacement[1]}`);
+            if(winners > 500000) break;
             for(const combo of unique) {
                 findPaths(currentPath, combo[0]);
             }
@@ -35,7 +38,7 @@ function constructPaths(target: string, start: string): string[][] {
     }
 
     findPaths([], start);
-    return paths;
+    return minPath;
 }
 
 async function main() {
@@ -51,9 +54,7 @@ async function main() {
         }
         const baseString = lines[lines.length-1];
 
-        const winningPaths = constructPaths('e', baseString);
-        let minLen = Infinity;
-        winningPaths.forEach(x => { if(x.length < minLen) minLen = x.length;});
+        const minLen = constructPaths('e', baseString);
 
         console.log(`Part 2 Shortest Path: ${minLen}`);
     }
