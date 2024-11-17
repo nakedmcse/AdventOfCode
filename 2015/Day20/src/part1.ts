@@ -9,7 +9,7 @@ function housePresents(h: number): number {
 
 async function main() {
     const target: number = 36000000;
-    let curHouse = 1;
+    let curHouse = 800000;
     let curValue = housePresents(curHouse);
     while(curValue < target) {
         curHouse++;
