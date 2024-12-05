@@ -13,26 +13,6 @@ function validMiddle(rules: number[][], p: number[]): number {
     return retval;
 }
 
-function sortNumbersWithRules(rules: number[][], p: number[]): number[] {
-    let swapped: boolean;
-    do {
-        swapped = false;
-        for (const [after, before] of rules) {
-            const indexAfter = p.indexOf(after);
-            const indexBefore = p.indexOf(before);
-
-            if (indexAfter === -1 || indexBefore === -1) continue;
-
-            // Swap on violation
-            if (indexBefore > indexAfter) {
-                [p[indexBefore], p[indexAfter]] = [p[indexAfter], p[indexBefore]];
-                swapped = true;
-            }
-        }
-    } while (swapped);
-    return p;
-}
-
 async function main() {
     const rules: number[][] = [];
     const prints: number[][] = [];
@@ -49,7 +29,15 @@ async function main() {
         let sum = 0;
         for(const print of prints) if(validMiddle(rules, print) === 0) invalids.push([...print]);
         for(const print of invalids) {
-            const sorted = sortNumbersWithRules(rules, print);
+            const sorted = print.toSorted((a,b) => {
+                const bfA = rules.filter(x => x[0] === a).map(x => x[1]);
+                const bfB = rules.filter(x => x[0] === b).map(x => x[1]);
+
+                if (bfA.includes(b)) return 1;
+                if (bfB.includes(a)) return -1;
+
+                return 0;
+            });
             sum += sorted[Math.floor((sorted.length-1)/2)];
         }
 
