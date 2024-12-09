@@ -13,11 +13,11 @@ function defrag(b: number[]): void {
     let freePtr = b.findIndex(x => x === -1);
     for(let i = b.length - 1; i >= 0; i--) {
         if(b[i] === -1) continue;
+        if(freePtr >= i || freePtr === -1) break;
 
         b[freePtr] = b[i];
         b[i] = -1;
         freePtr = b.findIndex(x => x === -1);
-        if(freePtr >= i || freePtr === -1) break;
     }
 }
 
@@ -41,8 +41,6 @@ async function main() {
         }
 
         defrag(blocks);
-        blocks[49426] = blocks[49427];
-        blocks[49427] = -1;
 
         console.log(`Part 1 Checksum: ${checksum(blocks)}`);
     }
