@@ -22,6 +22,7 @@ function defrag(b: number[]): void {
 }
 
 async function main() {
+    console.time();
     const blocks: number[] = [];
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
@@ -43,6 +44,7 @@ async function main() {
         defrag(blocks);
 
         console.log(`Part 1 Checksum: ${checksum(blocks)}`);
+        console.timeEnd();
     }
 }
 
