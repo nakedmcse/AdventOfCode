@@ -16,6 +16,14 @@ function blink(s: number[]): number[] {
     return ns;
 }
 
+function blinkPrime(item: number[]): number[][] {
+    const [s, count] = item;
+    const retval: number[][] = [];
+    const blinked = blink([s]);
+    for(let st of blinked) retval.push([st,count]);
+    return retval;
+}
+
 async function main() {
     console.time();
     let stones: number[] = [];
@@ -23,21 +31,22 @@ async function main() {
     if (lines) {
         stones = AocLib.getNumbers(lines[0]) ?? [0];
 
-        let count = 0;
-        for(const st of stones) {
-            let single= [st];
-            for (let i = 0; i < 25; i++) {
-                single = blink(single);
-            }
-            for(const st2 of single) {
-                let single2 = [st2];
-                for (let i = 0; i < 25; i++) {
-                    single2 = blink(single2);
+        let counter = new Map<number, number>();
+        for(let st of stones) counter.set(st, 1);
+
+        for(let i = 0; i<75; i++) {
+            let newCounter = new Map<number, number>();
+            for(let item of counter) {
+                for(let ret of blinkPrime(item)) {
+                    if(newCounter.has(ret[0])) newCounter.set(ret[0], (newCounter.get(ret[0]) ?? 0) + ret[1]);
+                    else newCounter.set(ret[0], ret[1]);
                 }
-                count += single2.length;
             }
-            console.log(st);
+            counter = newCounter;
         }
+
+        let count = 0;
+        for(let c of counter) count += c[1];
 
         console.log(`Part 2 Stones: ${count}`);
     }
