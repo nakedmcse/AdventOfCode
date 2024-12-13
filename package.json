@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@types/mathjs": "^9.4.1",
+    "mathjs": "^14.0.1"
+  }
+}
