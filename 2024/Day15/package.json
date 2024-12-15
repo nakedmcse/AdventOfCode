@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "run2024d15p1": "ts-node src/part1.ts",
     "run2024d15p2": "ts-node src/part2.ts",
+    "run2024d15p2game": "ts-node src/part2game.ts",
     "update_deps": "npx npm-check-updates"
   },
   "author": "Walker",

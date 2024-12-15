@@ -1,8 +1,27 @@
-//2024 day 15 part 2
-import {AocLib} from "./aocLib"
+//2024 day 15 part 2 playable
+import readline from 'readline';
+import {AocLib} from "./aocLib";
 
 async function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForKeypress(): Promise<string> {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+    });
+
+    return new Promise((resolve) => {
+        process.stdin.setRawMode(true); // Enable raw mode to capture single key presses
+        process.stdin.resume();
+        process.stdin.once('data', (data) => {
+            const key = data.toString();
+            process.stdin.setRawMode(false); // Disable raw mode after capturing
+            rl.close();
+            resolve(key.trim());
+        });
+    });
 }
 
 function findRobot(m: string[][]): number[] {
@@ -195,7 +214,7 @@ async function main() {
     const warehouseMap: string[][] = [];
     let moves = "";
     let processedMap = false;
-    const lines = await AocLib.readFile('input.txt');
+    const lines = await AocLib.readFile('test.txt');
     if (lines) {
         for (let line of lines) {
             if(line === "") {
@@ -216,13 +235,19 @@ async function main() {
 
         let sum = 0;
         let [cy, cx] = findRobot(warehouseMap);
+        renderMap(warehouseMap, boxes);
 
         for(const m of moves.split('')) {
-            [cy, cx] = processMove(warehouseMap, boxes, m, cy, cx);
-            // Uncomment this to enable visualizer
-            // console.clear();
-            // renderMap(warehouseMap, boxes);
-            // await sleep(100);
+            const k = await waitForKeypress();
+            let d = '>';
+            if(k === 'w') d = '^';
+            else if(k === 's') d = 'v';
+            else if(k === 'a') d = '<';
+
+            [cy, cx] = processMove(warehouseMap, boxes, d, cy, cx);
+            console.clear();
+            renderMap(warehouseMap, boxes);
+            await sleep(100);
         }
 
         boxes.forEach(r => {sum += (100 * r[0]) + r[1]});
