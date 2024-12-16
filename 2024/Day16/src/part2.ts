@@ -1,4 +1,4 @@
-//2024 day 16 part 1
+//2024 day 16 part 2
 import {AocLib} from "./aocLib";
 
 interface State {
@@ -15,6 +15,38 @@ function findGiven(m: string[][], g: string): number[] {
         }
     }
     return [-1,-1];
+}
+
+interface State {
+    y: number;
+    x: number;
+    d: number;    // direction index
+    cost: number; // total cost so far
+}
+
+function reverseCount(p: State[]): number {
+    const minPoints: number[][] = [];
+    const queue: number[] = [];
+    const seen: number[] = [];
+    queue.push(p.length-1);
+
+    while(queue.length > 0) {
+	    const idx = queue.pop() ?? 0;
+        if(seen.findIndex(r => r === idx) !== -1) continue;
+        seen.push(idx);
+	    if(minPoints.findIndex(r => r[1] === p[idx].x && r[0] === p[idx].y) === -1) minPoints.push([p[idx].y,p[idx].x]);
+	    if(p[idx].cost === 0) continue;
+	    const candidates = p.filter(r => r.cost === p[idx].cost-1 || r.cost === p[idx].cost-1001);
+	    for(const c of candidates) {
+            const adjacent = [[-1,0],[0,1],[1,0],[0,-1]];
+            let isAdjacent = false;
+            for(let mod of adjacent) if(p[idx].y + mod[0] === c.y && p[idx].x + mod[1] === c.x) isAdjacent = true;
+            if(!isAdjacent) continue;
+	        const cIdx = p.findIndex(r => r.x === c.x && r.y === c.y && r.d === c.d && r.cost === c.cost);
+	        if(cIdx !== -1) queue.push(cIdx);
+	    }
+    }
+    return minPoints.length;
 }
 
 function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
@@ -43,6 +75,9 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
         return pq.shift() as State;
     };
 
+    // Set of parent states
+    const parent: State[] = [];
+
     while (pq.length > 0) {
         const { y, x, d, cost } = popMin();
 
@@ -51,7 +86,8 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
 
         // Hit target
         if (y === e[0] && x === e[1]) {
-            return cost;
+            //for(let i = 0; i < parent.length; i++) console.log(parent[i]);
+	        return reverseCount(parent);
         }
 
         // Forwards
@@ -64,6 +100,8 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 if (newCost < dp[ny][nx][d]) {
                     dp[ny][nx][d] = newCost;
                     pq.push({ y: ny, x: nx, d, cost: newCost });
+                    const p: State =  { y: y, x: x, d, cost: cost };
+                    if(parent.findIndex(r => r.x === p.x && r.y === p.y && r.d === p.d) === -1) parent.push(p);
                 }
             }
         }
@@ -79,6 +117,8 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 if (newCost < dp[ny][nx][leftDir]) {
                     dp[ny][nx][leftDir] = newCost;
                     pq.push({ y: ny, x: nx, d: leftDir, cost: newCost });
+                    const p: State =  { y: y, x: x, d, cost: cost };
+                    if(parent.findIndex(r => r.x === p.x && r.y === p.y && r.d === p.d) === -1) parent.push(p);
                 }
             }
         }
@@ -94,6 +134,8 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 if (newCost < dp[ny][nx][rightDir]) {
                     dp[ny][nx][rightDir] = newCost;
                     pq.push({ y: ny, x: nx, d: rightDir, cost: newCost });
+                    const p: State =  { y: y, x: x, d, cost: cost };
+                    if(parent.findIndex(r => r.x === p.x && r.y === p.y && r.d === p.d) === -1) parent.push(p);
                 }
             }
         }
@@ -116,7 +158,7 @@ async function main() {
 
         let sum = walkMinDP(rMap, end, y, x);
 
-        console.log(`Part 1 Sum: ${sum}`);
+        console.log(`Part 2 Sum: ${sum}`);
     }
     console.timeEnd();
 }
