@@ -1,4 +1,5 @@
 //2024 day 17 part 2
+//  THIS DOES NOT WORK - the python version does....
 
 let A = 0;
 let B = 0;
@@ -60,27 +61,35 @@ function processInstruction(opcode: number, operand: number) {
     }
 }
 
+function resetState(aval: number): void {
+    A = aval;
+    B = 0;
+    C = 0;
+    pc = 0;
+    output = [];
+}
+
+function runSim(aval: number): void {
+    resetState(aval);
+    while (pc < program.length) processInstruction(program[pc], program[pc + 1]);
+}
+
+function reverseCode(n: number, d: number): number {
+    const retval: number[] = [Infinity];
+    if(d === -1) return n;
+    for(let i = 0; i<8; i++) {
+        const nextn = n+i*Math.pow(8, d);
+        runSim(nextn);
+        if(output.length !== program.length) continue;
+        if(output[d] === program[d]) retval.push(reverseCode(nextn, d-1));
+    }
+    console.log(...retval);
+    return Math.min(...retval);
+}
+
 async function main() {
     console.time();
-    for(let i = 0; i<1000_000_000; i++) {
-        console.clear();
-        console.log(`Trying ${i}...`);
-        A = 35184372088831 + i;
-        B = 0;
-        C = 0;
-        pc = 0;
-        output = [];
-        while (pc < program.length) processInstruction(program[pc], program[pc + 1]);
-        if(output.length === program.length) {
-            console.log("Checking candidate...");
-            let match = true;
-            for(let j = 0; j<output.length; j++) if(program[j] !== output[j]) match = false;
-            if(match) {
-                console.log(`Part 2 A Value: ${i+35184372088831}`);
-                break;
-            }
-        }
-    }
+    console.log(`Part 2 A: ${reverseCode(0,15)}`);
     console.timeEnd();
 }
 
