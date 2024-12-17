@@ -1,5 +1,6 @@
 //2024 day 16 part 1
 import {AocLib} from "./aocLib";
+import {MinPriorityQueue} from "@datastructures-js/priority-queue";
 
 interface State {
     y: number;
@@ -36,15 +37,11 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
     dp[oy][ox][1] = 0;
 
     // Simple priority queue
-    const pq: State[] = [{ y: oy, x: ox, d: 1, cost: 0 }];
+    const pq = new MinPriorityQueue<State>(v => v.cost);
+    pq.enqueue({ y: oy, x: ox, d: 1, cost: 0 });
 
-    const popMin = () => {
-        pq.sort((a, b) => a.cost - b.cost);
-        return pq.shift() as State;
-    };
-
-    while (pq.length > 0) {
-        const { y, x, d, cost } = popMin();
+    while (!pq.isEmpty()) {
+        const { y, x, d, cost } = pq.dequeue();
 
         // If we’ve already found a better cost for this state, skip.
         if (cost > dp[y][x][d]) continue;
@@ -63,7 +60,7 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 const newCost = cost + 1;
                 if (newCost < dp[ny][nx][d]) {
                     dp[ny][nx][d] = newCost;
-                    pq.push({ y: ny, x: nx, d, cost: newCost });
+                    pq.enqueue({ y: ny, x: nx, d, cost: newCost });
                 }
             }
         }
@@ -78,7 +75,7 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 const newCost = cost + 1001;
                 if (newCost < dp[ny][nx][leftDir]) {
                     dp[ny][nx][leftDir] = newCost;
-                    pq.push({ y: ny, x: nx, d: leftDir, cost: newCost });
+                    pq.enqueue({ y: ny, x: nx, d: leftDir, cost: newCost });
                 }
             }
         }
@@ -93,7 +90,7 @@ function walkMinDP(m: string[][], e: number[], oy: number, ox: number): number {
                 const newCost = cost + 1001;
                 if (newCost < dp[ny][nx][rightDir]) {
                     dp[ny][nx][rightDir] = newCost;
-                    pq.push({ y: ny, x: nx, d: rightDir, cost: newCost });
+                    pq.enqueue({ y: ny, x: nx, d: rightDir, cost: newCost });
                 }
             }
         }
