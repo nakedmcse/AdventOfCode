@@ -22,7 +22,8 @@ async function main() {
     console.time();
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
-        const towels = lines[0].split(', ').sort((a,b) => b.length - a.length);
+        const towels = lines[0].split(', ')
+            .sort((a,b) => b.length - a.length);
 
         let sum = 0;
         for(let i = 2; i<lines.length; i++) {
