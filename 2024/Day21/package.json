@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "run2024d21p1": "ts-node src/part1.ts",
-    "run2024d21p1bogo": "ts-node src/part1bogo.ts",
     "run2024d21p2": "ts-node src/part2.ts",
     "update_deps": "npx npm-check-updates"
   },

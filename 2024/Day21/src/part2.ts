@@ -1,4 +1,4 @@
-//2024 day 21 part 1
+//2024 day 21 part 2
 import {AocLib} from "./aocLib";
 
 type Keypad = string[];
@@ -72,11 +72,11 @@ async function main() {
     console.time();
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
-        let sum = 0;
+        let sum = 0n;
         for (const code of lines) {
-            sum += solve(code, 1 + 2 + 1) * parseInt(code.slice(0, 3), 10);
+            sum += BigInt(solve(code, 1 + 25 + 1)) * BigInt(parseInt(code.slice(0, 3), 10));
         }
-        console.log(`Part 1 Sum: ${sum}`);
+        console.log(`Part 2 Sum: ${sum}`);
     }
     console.timeEnd();
 }
