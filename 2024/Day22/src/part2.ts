@@ -33,14 +33,14 @@ function buildCandidates(changes: number[][], prices: number[][], cands: number[
     for(let j=0; j<prices.length; j++) {
         const p = prices[j];
         // Find max, extract previous four
-        let max = p[5];
-        for(let i = 5; i<p.length; i++) {
+        let max = p[4];
+        for(let i = 4; i<p.length; i++) {
             if(p[i] > max) {
                 max = p[i];
             }
         }
         // Push to candidates
-        for(let i = 5; i<p.length; i++) {
+        for(let i = 4; i<p.length; i++) {
             if(p[i] === max) {
                 cands.push([changes[j][i - 3], changes[j][i - 2], changes[j][i - 1], changes[j][i]]);
             }
@@ -55,7 +55,7 @@ function sumForCandidate(changes: number[][], prices: number[][], ca:number[]): 
     for(let j=0; j<changes.length; j++) {
         const c = changes[j];
         const p = prices[j];
-        for(let i=5; i<c.length; i++) {
+        for(let i=4; i<c.length; i++) {
             if(c[i-3] === ca[0] && c[i-2] === ca[1] && c[i-1] === ca[2] && c[i] === ca[3]) {
                 retval += p[i];
                 break;
