@@ -17,12 +17,7 @@ async function main() {
     const secrets: bigint[] = []
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
-        for(const line of lines) {
-            const matches = line.match(/(-?\d+)/);
-            if(matches) {
-                secrets.push(BigInt(parseInt(matches[1])));
-            }
-        }
+        lines.forEach(l => { secrets.push(BigInt(parseInt(l))); });
 
         let sum = 0n;
         for(let s of secrets) {
