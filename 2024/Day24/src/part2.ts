@@ -29,31 +29,31 @@ async function main() {
 
         const bad = new Set<string>();
         // Check gate defs based on rules for a 46 bit ripple adder
-        for(const gate of gatedefs) {
-            if (gate[0].startsWith('z') && !gate[1].includes('^') && gate[0] !== "z45") {
-                bad.add(gate[0]);
+        for(const [name,gate] of gatedefs) {
+            if (name.startsWith('z') && !gate.includes('^') && name !== "z45") {
+                bad.add(name);
             }
 
-            if (gate[1].includes('^')
-                && !['x', 'y', 'z'].includes(gate[0].slice(0, 1))
-                && !['x', 'y', 'z'].includes(gate[1].split(' ')[0].slice(0, 1))
-                && !['x', 'y', 'z'].includes(gate[1].split(' ')[2].slice(0, 1)))
+            if (gate.includes('^')
+                && !['x', 'y', 'z'].includes(name.slice(0, 1))
+                && !['x', 'y', 'z'].includes(gate.split(' ')[0].slice(0, 1))
+                && !['x', 'y', 'z'].includes(gate.split(' ')[2].slice(0, 1)))
             {
-                bad.add(gate[0]);
+                bad.add(name);
             }
 
-            if (gate[1].includes('&') && !gate[1].includes('x00')) {
-                for(const subgate of gatedefs) {
-                    if(subgate[1].includes(gate[0]) && !subgate[1].includes('|')) {
-                        bad.add(gate[0]);
+            if (gate.includes('&') && !gate.includes('x00')) {
+                for(const [subname, subgate] of gatedefs) {
+                    if(subgate.includes(name) && !subgate.includes('|')) {
+                        bad.add(name);
                     }
                 }
             }
 
-            if (gate[1].includes('^')) {
-                for(const subgate of gatedefs) {
-                    if(subgate[1].includes(gate[0]) && subgate[1].includes('|')) {
-                        bad.add(gate[0]);
+            if (gate.includes('^')) {
+                for(const [subname, subgate] of gatedefs) {
+                    if(subgate.includes(name) && subgate.includes('|')) {
+                        bad.add(name);
                     }
                 }
             }
