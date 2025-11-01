@@ -8,56 +8,71 @@ enum Cardinal {
     West
 }
 
+type turning = "L" | "R";
+
 class point {
     public x: number;
     public y: number;
+    public orientation: Cardinal;
+
+    public turn(direction: turning) {
+        if (direction === "R") {
+            if (this.orientation === Cardinal.West) {
+                this.orientation = Cardinal.North;
+            } else {
+                this.orientation += 1;
+            }
+        } else {
+            if (this.orientation === Cardinal.North) {
+                this.orientation = Cardinal.West;
+            } else {
+                this.orientation -= 1;
+            }
+        }
+    }
+
+    public walk(distance: number) {
+        switch (this.orientation) {
+            case Cardinal.North:
+                this.y += distance;
+                break;
+            case Cardinal.East:
+                this.x += distance;
+                break;
+            case Cardinal.South:
+                this.y -= distance;
+                break;
+            case Cardinal.West:
+                this.x -= distance;
+                break;
+        }
+    }
 
     public distance() {
         return Math.abs(this.x)+Math.abs(this.y);
     }
 
-    public constructor(x: number, y: number) {
+    public constructor(x: number, y: number, orientation: Cardinal) {
         this.x = x;
         this.y = y;
+        this.orientation = orientation;
     }
 }
 
 async function main() {
     const lines = await AocLib.readFile('input.txt');
-    const location = new point(0,0);
-    let orientation = Cardinal.North;
+    const location = new point(0,0, Cardinal.North);
     if (lines) {
         for(const line of lines) {
            for(const direction of line.split(',')) {
                if (direction.includes('R')) {
-                   if (orientation === Cardinal.West) {
-                       orientation = Cardinal.North;
-                   } else {
-                       orientation += 1;
-                   }
+                   location.turn("R");
                }
                else {
-                   if (orientation === Cardinal.North) {
-                       orientation = Cardinal.West;
-                   } else {
-                       orientation -= 1;
-                   }
+                   location.turn("L");
                }
                const distance = parseInt(direction.trim().slice(1), 10);
-               switch (orientation) {
-                   case Cardinal.North:
-                       location.y += distance;
-                       break;
-                   case Cardinal.East:
-                       location.x += distance;
-                       break;
-                   case Cardinal.South:
-                       location.y -= distance;
-                       break;
-                   case Cardinal.West:
-                       location.x -= distance;
-                       break;
-               }
+               location.walk(distance);
            }
         }
 
