@@ -1,54 +1,86 @@
 //2016 Day 1 Part 2
 import {AocLib} from "./aocLib";
 
+enum Cardinal {
+    North = 0,
+    East,
+    South,
+    West
+}
+
+type turning = "L" | "R";
+
+class point {
+    private visited: string[];
+
+    public turn(direction: turning) {
+        if (direction === "R") {
+            this.orientation = this.orientation === Cardinal.West
+                ? Cardinal.North
+                : this.orientation + 1;
+        } else {
+            this.orientation = this.orientation === Cardinal.North
+                ? Cardinal.West
+                : this.orientation - 1;
+        }
+    }
+
+    public walk(distance: number) {
+        for(let i = 0; i<distance; i++) {
+            switch (this.orientation) {
+                case Cardinal.North:
+                    this.y += 1;
+                    break;
+                case Cardinal.East:
+                    this.x += 1;
+                    break;
+                case Cardinal.South:
+                    this.y -= 1;
+                    break;
+                case Cardinal.West:
+                    this.x -= 1;
+                    break;
+            }
+            if(this.visited.includes(`${this.x},${this.y}`)) {
+                throw new Error(`Crossing Point Reached at ${this.x},${this.y}`);
+            }
+            this.visited.push(`${this.x},${this.y}`);
+        }
+    }
+
+    public distance() {
+        return Math.abs(this.x) + Math.abs(this.y);
+    }
+
+    public constructor(private x: number, private y: number, private orientation: Cardinal) {
+        this.visited = [`${x},${y}`];
+    }
+}
+
 async function main() {
     const lines = await AocLib.readFile('input.txt');
-    let x = 0;
-    let y = 0;
-    let orientation = 0;  // 0 - N, 1 - E, 2 - S, 3 - W
-    const visited:string[] = ['0,0'];  // Start at origin
-    let foundDuplicate:boolean = false;
+    const location = new point(0,0, Cardinal.North);
     if (lines) {
         for(const line of lines) {
             for(const direction of line.split(',')) {
                 if (direction.includes('R')) {
-                    orientation += 1;
-                    if (orientation === 4) orientation = 0;
+                    location.turn("R");
                 }
                 else {
-                    orientation -= 1;
-                    if (orientation === -1) orientation = 3;
+                    location.turn("L");
                 }
                 const distance = parseInt(direction.trim().slice(1), 10);
-
-                for (let j = 0; j < distance; j++) {
-                    switch (orientation) {
-                        case 0:
-                            y += 1;
-                            break;
-                        case 1:
-                            x += 1;
-                            break;
-                        case 2:
-                            y -= 1;
-                            break;
-                        case 3:
-                            x -= 1;
-                            break;
-                    }
-                    if (visited.includes(`${x},${y}`)) {
-                        foundDuplicate = true;
-                        break;
-                    }
-                    visited.push(`${x},${y}`);
+                try {
+                    location.walk(distance);
                 }
-                if (foundDuplicate) break;
+                catch (e) {
+                    console.log(e);
+                    break;
+                }
             }
         }
 
-        let sum = Math.abs(x) + Math.abs(y);
-
-        console.log(`Part 2 Distance: ${sum}`);
+        console.log(`Part 2 Distance: ${location.distance()}`);
     }
 }
 
