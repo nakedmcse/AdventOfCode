@@ -1,44 +1,67 @@
 //2016 Day 1 Part 1
 import {AocLib} from "./aocLib";
 
+enum Cardinal {
+    North = 0,
+    East,
+    South,
+    West
+}
+
+class point {
+    public x: number;
+    public y: number;
+
+    public distance() {
+        return Math.abs(this.x)+Math.abs(this.y);
+    }
+
+    public constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
 async function main() {
     const lines = await AocLib.readFile('input.txt');
-    let x = 0;
-    let y = 0;
-    let orientation = 0;  // 0 - N, 1 - E, 2 - S, 3 - W
+    const location = new point(0,0);
+    let orientation = Cardinal.North;
     if (lines) {
         for(const line of lines) {
            for(const direction of line.split(',')) {
                if (direction.includes('R')) {
-                   orientation += 1;
-                   if (orientation === 4) orientation = 0;
+                   if (orientation === Cardinal.West) {
+                       orientation = Cardinal.North;
+                   } else {
+                       orientation += 1;
+                   }
                }
                else {
-                   orientation -= 1;
-                   if (orientation === -1) orientation = 3;
+                   if (orientation === Cardinal.North) {
+                       orientation = Cardinal.West;
+                   } else {
+                       orientation -= 1;
+                   }
                }
                const distance = parseInt(direction.trim().slice(1), 10);
                switch (orientation) {
-                   case 0:
-                       y += distance;
+                   case Cardinal.North:
+                       location.y += distance;
                        break;
-                   case 1:
-                       x += distance;
+                   case Cardinal.East:
+                       location.x += distance;
                        break;
-                   case 2:
-                       y -= distance;
+                   case Cardinal.South:
+                       location.y -= distance;
                        break;
-                   case 3:
-                       x -= distance;
+                   case Cardinal.West:
+                       location.x -= distance;
                        break;
                }
-               console.log(x, y, distance, orientation, direction);
            }
         }
 
-        let sum = Math.abs(x) + Math.abs(y);
-
-        console.log(`Part 1 Distance: ${sum}`);
+        console.log(`Part 1 Distance: ${location.distance()}`);
     }
 }
 
