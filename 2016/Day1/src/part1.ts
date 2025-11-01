@@ -11,23 +11,15 @@ enum Cardinal {
 type turning = "L" | "R";
 
 class point {
-    public x: number;
-    public y: number;
-    public orientation: Cardinal;
-
     public turn(direction: turning) {
         if (direction === "R") {
-            if (this.orientation === Cardinal.West) {
-                this.orientation = Cardinal.North;
-            } else {
-                this.orientation += 1;
-            }
+            this.orientation = this.orientation === Cardinal.West
+                ? Cardinal.North
+                : this.orientation + 1;
         } else {
-            if (this.orientation === Cardinal.North) {
-                this.orientation = Cardinal.West;
-            } else {
-                this.orientation -= 1;
-            }
+            this.orientation = this.orientation === Cardinal.North
+                ? Cardinal.West
+                : this.orientation - 1;
         }
     }
 
@@ -49,13 +41,10 @@ class point {
     }
 
     public distance() {
-        return Math.abs(this.x)+Math.abs(this.y);
+        return Math.abs(this.x) + Math.abs(this.y);
     }
 
-    public constructor(x: number, y: number, orientation: Cardinal) {
-        this.x = x;
-        this.y = y;
-        this.orientation = orientation;
+    public constructor(private x: number, private y: number, private orientation: Cardinal) {
     }
 }
 
