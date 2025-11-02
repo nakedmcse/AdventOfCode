@@ -24,6 +24,10 @@ class point {
                 break;
         }
     }
+
+    public getKey(): string {
+        return keypad[this.y][this.x];
+    }
 }
 
 async function main() {
@@ -35,7 +39,7 @@ async function main() {
             for(const dir of line) {
                 location.move(dir as move);
             }
-            code += keypad[location.y][location.x];
+            code += location.getKey();
         }
 
         console.log(`Part 1 Code: ${code}`);

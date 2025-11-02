@@ -10,9 +10,7 @@ class point {
     public constructor(public x: number = 0, public y: number = 2) {}
 
     private checkValid(x: number, y: number): boolean {
-        if (x < 0 || x > 4 || y < 0 || y > 4) return false;
-        if (keypad[y][x] === '*') return false;
-        return true;
+        return !(x < 0 || x > 4 || y < 0 || y > 4 || keypad[y][x] === '*');
     }
 
     public move(direction: move): void {
@@ -31,6 +29,10 @@ class point {
                 break;
         }
     }
+
+    public getKey(): string {
+        return keypad[this.y][this.x];
+    }
 }
 
 async function main() {
@@ -42,7 +44,7 @@ async function main() {
             for(const dir of line) {
                 location.move(dir as move);
             }
-            code += keypad[location.y][location.x];
+            code += location.getKey();
         }
 
         console.log(`Part 2 Code: ${code}`);
