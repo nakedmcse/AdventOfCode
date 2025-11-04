@@ -14,6 +14,11 @@ function getNumbers(line: string): number[]|null {
 }
 
 function getComputedChecksum(line: string): string {
+    function complexSort(a: [string,number], b: [string,number]): number {
+        return (b[1] - a[1] !== 0 ? b[1] - a[1]  // Sort by count first, but if equal
+            : a[0].charCodeAt(0) - b[0].charCodeAt(0))  // Then sort by character alpha
+    }
+
     let retval = "";
     const counter = new Map<string, number>();
     const valid: string = "abcdefghijklmnopqrstuvwxyz";
@@ -28,8 +33,7 @@ function getComputedChecksum(line: string): string {
         }
     }
 
-    const sortedCounter = new Map<string, number>([...counter].sort((a, b) => (b[1] - a[1] !== 0 ? b[1] - a[1]
-        : a[0].charCodeAt(0) - b[0].charCodeAt(0))));
+    const sortedCounter = new Map<string, number>([...counter].sort((a, b) => complexSort(a,b)));
     const singleLetters: string[] = [];
     // Extract top most common
     for(const [k,v] of sortedCounter.entries()) {
