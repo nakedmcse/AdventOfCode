@@ -34,20 +34,9 @@ function getComputedChecksum(line: string): string {
     }
 
     const sortedCounter = new Map<string, number>([...counter].sort((a, b) => complexSort(a,b)));
-    const singleLetters: string[] = [];
     // Extract top most common
     for(const [k,v] of sortedCounter.entries()) {
-        if(v>1) {
-            retval += k;
-        }
-        else {
-            singleLetters.push(k);
-        }
-    }
-    // Alpha sort single letters
-    if(singleLetters.length > 0) {
-        singleLetters.sort();
-        retval += singleLetters.join('');
+        retval += k;
     }
 
     // Return top 5 only
