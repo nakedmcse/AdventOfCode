@@ -10,7 +10,7 @@ function generateMd5Hash(data: string): string {
 async function main() {
     const doorCode = "ffykfhsq";
     let password = "";
-    let i: bigint = 0n;
+    let i = 0;
 
     while (password.length < 8) {
         const hash = generateMd5Hash(`${doorCode}${i}`);
