@@ -22,7 +22,7 @@ async function main() {
                 counter.set(badData[j][i], next+1);
             }
             const sortedCounter = new Map<string, number>([...counter].sort((a, b) => complexSort(a,b)));
-            const [k,v] = sortedCounter.entries().next().value ?? ['',0];
+            const k = sortedCounter.keys().next().value ?? '';
             message.push(k);
         }
 
