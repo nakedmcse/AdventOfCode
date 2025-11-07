@@ -19,7 +19,6 @@ async function main() {
             const insideBrackets = [...line.matchAll(/\[([a-z]+)\]/g)].map(m => m[1]);
             const outsideBrackets = line.split(/\[[a-z]+\]/g).filter(x => x.length > 0);
             const innerPalindromes: string[] = [];
-            const outerPalindromes: string[] = [];
 
             for (const inner of insideBrackets) {
                 const found = findThreePalindrome(inner);
@@ -34,16 +33,12 @@ async function main() {
                 const found = findThreePalindrome(outer);
                 if (found && found.length > 0) {
                     for (let j = 0; j < found.length; j++) {
-                        outerPalindromes.push(found[j]);
+                        const search = found[j][1] + found[j][2] + found[j][1];   // ABA -> BAB
+                        if (innerPalindromes.includes(search)) {
+                            sum++;
+                            break;
+                        }
                     }
-                }
-            }
-
-            for (const test of outerPalindromes) {
-                const search = test[1] + test[2] + test[1];   // ABA -> BAB
-                if (innerPalindromes.includes(search)) {
-                    sum++;
-                    break;
                 }
             }
         }

@@ -18,7 +18,6 @@ async function main() {
         let sum = 0;
         for(const line of lines) {
             const insideBrackets = [...line.matchAll(/\[([a-z]+)\]/g)].map(m => m[1]);
-            const outsideBrackets = line.split(/\[[a-z]+\]/g).filter(x => x.length > 0);
             let bad = false;
             for (const inner of insideBrackets) {
                 if (checkFourPalindrome(inner)) {
@@ -27,6 +26,7 @@ async function main() {
                 }
             }
             if (bad) continue;
+            const outsideBrackets = line.split(/\[[a-z]+\]/g).filter(x => x.length > 0);
             for (const outer of outsideBrackets) {
                 if (checkFourPalindrome(outer)) {
                     sum++;
