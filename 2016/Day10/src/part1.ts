@@ -21,9 +21,9 @@ class bot {
             return;
         }
         if (valsAtBot.length === 2) {
-            const actualValue1 = GetNumbers(valsAtBot[0].name) ?? [0];
-            const actualValue2 = GetNumbers(valsAtBot[1].name) ?? [0];
-            if (actualValue1[0] > actualValue2[0]) {
+            const actualValue1 = (GetNumbers(valsAtBot[0].name) ?? [0])[0];
+            const actualValue2 = (GetNumbers(valsAtBot[1].name) ?? [0])[0];
+            if (actualValue1 > actualValue2) {
                 valsAtBot[0].location = this.high;
                 valsAtBot[1].location = this.low;
             } else {
