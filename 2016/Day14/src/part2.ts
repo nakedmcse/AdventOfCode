@@ -6,8 +6,7 @@ const cacheStretched:Map<string,string> = new Map<string,string>();
 function generateMd5Hash(data: string): string {
     const hash = createHash('md5');
     hash.update(data);
-    const digest = hash.digest('hex');
-    return digest;
+    return hash.digest('hex');
 }
 
 function stretchHash(data: string): string {
