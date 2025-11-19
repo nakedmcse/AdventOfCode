@@ -1,0 +1,19 @@
+{
+  "name": "2016_day19",
+  "version": "1.0.0",
+  "description": "2016 Day 19",
+  "license": "MIT",
+  "author": "Walker",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "run2016d19p1": "ts-node src/part1.ts",
+    "run2016d19p2": "ts-node src/part2.ts",
+    "update_deps": "npx npm-check-updates",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
