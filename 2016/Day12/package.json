@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "run2016d12p1": "ts-node src/part1.ts",
+    "run2016d12p1alt": "ts-node src/Part1Alt.ts",
     "run2016d12p2": "ts-node src/part2.ts",
     "update_deps": "npx npm-check-updates",
     "test": "echo \"Error: no test specified\" && exit 1"
