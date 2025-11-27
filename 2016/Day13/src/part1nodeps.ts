@@ -1,8 +1,77 @@
 //2016 Day 13 Part 1
-import {MinPriorityQueue} from "@datastructures-js/priority-queue";
+class MinHeap<T> {
+    private heap: T[] = [];
+    private comparator: (a: T, b: T) => number;
+
+    public constructor(comparator: (a: T, b: T) => number) {
+        this.comparator = comparator;
+    }
+
+    public push(item: T): void {
+        this.heap.push(item);
+        this.heapifyUp();
+    }
+
+    public extract(): T | undefined {
+        if (this.isEmpty()) return undefined;
+        if (this.heap.length === 1) return this.heap.pop();
+
+        const min = this.heap[0];
+        this.heap[0] = this.heap.pop()!;
+        this.heapifyDown();
+        return min;
+    }
+
+    public peek(): T | undefined {
+        return this.isEmpty() ? undefined : this.heap[0];
+    }
+
+    public isEmpty(): boolean {
+        return this.heap.length === 0;
+    }
+
+    private heapifyUp(): void {
+        let currentIndex = this.heap.length - 1;
+        while (currentIndex > 0) {
+            const parentIndex = Math.floor((currentIndex - 1) / 2);
+            if (this.comparator(this.heap[currentIndex], this.heap[parentIndex]) < 0) {
+                [this.heap[currentIndex], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[currentIndex]];
+                currentIndex = parentIndex;
+            } else {
+                break;
+            }
+        }
+    }
+
+    private heapifyDown(): void {
+        let currentIndex = 0;
+        const lastIndex = this.heap.length - 1;
+
+        while (true) {
+            let leftChildIndex = 2 * currentIndex + 1;
+            let rightChildIndex = 2 * currentIndex + 2;
+            let smallestIndex = currentIndex;
+
+            if (leftChildIndex <= lastIndex && this.comparator(this.heap[leftChildIndex], this.heap[smallestIndex]) < 0) {
+                smallestIndex = leftChildIndex;
+            }
+
+            if (rightChildIndex <= lastIndex && this.comparator(this.heap[rightChildIndex], this.heap[smallestIndex]) < 0) {
+                smallestIndex = rightChildIndex;
+            }
+
+            if (smallestIndex !== currentIndex) {
+                [this.heap[currentIndex], this.heap[smallestIndex]] = [this.heap[smallestIndex], this.heap[currentIndex]];
+                currentIndex = smallestIndex;
+            } else {
+                break;
+            }
+        }
+    }
+}
 
 type Point = { x: number, y: number };
-type Node = { point: Point, cost: number, length: number, path: Point[] };
+type MapNode = { point: Point, cost: number, length: number, path: Point[] };
 type PathStats = { cost: number, length: number, path: Point[] };
 
 function constructMaze(base: number, width: number, height: number): string[][] {
@@ -39,7 +108,7 @@ function shortestPath(maze: string[][], start: Point, end: Point): number {
         x >= 0 && y >= 0 && x < cols && y < rows && maze[y][x] !== '#';
 
     // Priority queue to manage nodes to process, ordered by cost
-    const pq = new MinPriorityQueue<Node>(r => r.cost);
+    const pq = new MinHeap<MapNode>((a,b) => a.cost - b.cost);
     const visited: boolean[][] = Array.from({ length: rows }, () => Array(cols).fill(false));
     const costs: number[][] = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
 
@@ -48,7 +117,7 @@ function shortestPath(maze: string[][], start: Point, end: Point): number {
 
     while (!pq.isEmpty()) {
         // Extract node with smallest cost
-        const { point, cost, length, path } = pq.dequeue() ?? { point: {x:-1,y:-1}, cost: Infinity, length: Infinity, path: [] };
+        const { point, cost, length, path } = pq.extract() ?? { point: {x:-1,y:-1}, cost: Infinity, length: Infinity, path: [] };
         const { x, y } = point;
 
         if (visited[y][x]) continue; // Skip if already processed
