@@ -1,9 +1,8 @@
 //2025 Day 2 Part 2
 import {AocLib} from "./aocLib";
 
-class range {
-    public constructor(public start: number, public end: number) {}
-}
+type range = {start: number, end: number};
+const rangeList: range[] = [];
 
 function checkInvalid(n: number): boolean {
     const num = n.toString();
@@ -18,8 +17,6 @@ function checkInvalid(n: number): boolean {
     return false;
 }
 
-const rangeList: range[] = [];
-
 async function main() {
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
@@ -30,7 +27,7 @@ async function main() {
             const split = line.split(',');
             for(const entry of split) {
                 const ranges = entry.split('-');
-                rangeList.push(new range(parseInt(ranges[0],10), parseInt(ranges[1], 10)));
+                rangeList.push({start:parseInt(ranges[0],10), end:parseInt(ranges[1], 10)});
             }
         }
 
