@@ -9,6 +9,7 @@
   "scripts": {
     "run2025d1p1": "ts-node src/part1.ts",
     "run2025d1p2": "ts-node src/part2.ts",
+    "run2025d1p2alt": "ts-node src/part2alt.ts",
     "update_deps": "npx npm-check-updates",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
