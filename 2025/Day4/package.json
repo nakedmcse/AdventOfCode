@@ -1,0 +1,19 @@
+{
+  "name": "2025_day4",
+  "version": "1.0.0",
+  "description": "2025 Day 4",
+  "license": "MIT",
+  "author": "Walker",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "run2025d4p1": "ts-node src/part1.ts",
+    "run2025d4p2": "ts-node src/part2.ts",
+    "update_deps": "npx npm-check-updates",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
