@@ -16,16 +16,17 @@ function checkRolls(x: number, y: number): number {
         { x: 1, y: -1, d: 'ur' }
     ];
 
-    let r: number = 0;
     const ymax = grid.length;
     const xmax = grid[0].length;
+    const isValid = (xc:number, yc:number) => {
+        return xc >= 0 && xc < xmax && yc >=0 && yc < ymax && grid[yc][xc] === '@'
+    }
 
+    let r: number = 0;
     for (const d of directions) {
         const newX = x + d.x;
         const newY = y + d.y;
-        if (newX >= 0 && newX < xmax && newY >=0 && newY < ymax) {
-            if (grid[newY][newX] === '@') r++;
-        }
+        if (isValid(newX, newY)) r++;
     }
     return r;
 }
