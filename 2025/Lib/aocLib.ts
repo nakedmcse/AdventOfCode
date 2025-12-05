@@ -6,6 +6,9 @@ export type Point = { x: number, y: number };
 export type MapNode = { point: Point, cost: number, length: number, path: Point[] };
 export type PathStats = { cost: number, length: number, path: Point[] };
 
+// Range type
+export type AocRange = { start: number; end: number };
+
 // Graph classes
 export class AocGraphNode {
     public name: string;
@@ -459,5 +462,73 @@ export class AocLib {
         }
 
         return finalStats;
+    }
+
+    // Range functions
+    public static rangesMerge(ranges: AocRange[]): AocRange[] {
+        if (ranges.length === 0) return [];
+
+        const sorted = [...ranges].sort((a, b) =>
+            a.start === b.start ? a.end - b.end : a.start - b.start);
+        const merged: range[] = [];
+        let current = { ...sorted[0] };
+
+        for (let i = 1; i < sorted.length; i++) {
+            const r = sorted[i];
+            if (r.start <= current.end + 1) {
+                current.end = Math.max(current.end, r.end);
+            } else {
+                merged.push(current);
+                current = { ...r };
+            }
+        }
+        merged.push(current);
+        return merged;
+    }
+
+    public static rangesBinarySearch(sortedRanges: AocRange[], n: number): boolean {
+        let low = 0;
+        let high = sortedRanges.length - 1;
+
+        while (low <= high) {
+            const mid = low + Math.floor((high - low) / 2);
+            const r = sortedRanges[mid];
+
+            if (n < r.start) {
+                high = mid - 1;
+            } else if (n > r.end) {
+                low = mid + 1;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static rangesCountDistinct(ranges: AocRange[]): number {
+        if (ranges.length === 0) return 0;
+
+        const sorted = [...ranges].sort((a, b) =>
+            a.start === b.start ? a.end - b.end : a.start - b.start
+        );
+
+        let sum = 0;
+        let curStart = sorted[0].start;
+        let curEnd = sorted[0].end;
+
+        for (let i = 1; i < sorted.length; i++) {
+            const { start, end } = sorted[i];
+            if (start <= curEnd + 1) {
+                if (end > curEnd) curEnd = end;
+            } else {
+                sum += (curEnd - curStart) + 1;
+                curStart = start;
+                curEnd = end;
+            }
+        }
+
+        sum += (curEnd - curStart) + 1;
+        return sum;
     }
 }
