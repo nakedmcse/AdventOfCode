@@ -470,7 +470,7 @@ export class AocLib {
 
         const sorted = [...ranges].sort((a, b) =>
             a.start === b.start ? a.end - b.end : a.start - b.start);
-        const merged: range[] = [];
+        const merged: AocRange[] = [];
         let current = { ...sorted[0] };
 
         for (let i = 1; i < sorted.length; i++) {
