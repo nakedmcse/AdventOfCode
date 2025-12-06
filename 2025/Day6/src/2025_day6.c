@@ -37,7 +37,7 @@ long part2() {
     // Scan columns parsing VERTICALLY
     long sum = 0;
     long interim = 0;
-    long *nums = NULL;
+    long nums[5] = {0,0,0,0,0};
     int numCount = 0;
     char current[5];
     char operator = ' ';
@@ -52,11 +52,10 @@ long part2() {
                 } else {
                     interim = operator == '*' ? interim * nums[i] : interim + nums[i];
                 }
+                nums[i] = 0;
             }
             sum += interim;
             operator = ' ';
-            free(nums);
-            nums = NULL;
             numCount = 0;
             interim = 0;
             pos++;
@@ -68,12 +67,7 @@ long part2() {
         current[3] = grid[(3*maxX) + pos];
         current[4] = 0;
         numCount++;
-        if (nums == NULL) {
-            nums = (long *)malloc(numCount * sizeof(long));
-        } else {
-            nums = (long *)realloc(nums, numCount * sizeof(long));
-        }
-        sscanf(current, "%ld", &nums[numCount-1]);
+        nums[numCount - 1] = atol(current);
         pos++;
     }
     return sum;
