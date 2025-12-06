@@ -28,18 +28,17 @@ async function main() {
 
         let operation = "";
         for (let i = 0; i < grid[0].length; i++) {
-            if (grid[4][i] !== " ") operation = grid[4][i];
+            if (i < grid[4].length && grid[4][i] !== " ") operation = grid[4][i];
             const numstring = (grid[0][i] + grid[1][i] + grid[2][i] + grid[3][i]).trim();
+            if (numstring !== "") numbers.push(parseInt(numstring,10));
             if (numstring === "" || i === grid[0].length-1) {
-                console.log(numbers);
                 sum += processNumbers(operation);
-                continue;
             }
-            numbers.push(parseInt(numstring,10));
+
         }
         console.timeEnd('main');
 
-        console.log(`Part 2 Sum: ${sum + (313*4773)}`);
+        console.log(`Part 2 Sum: ${sum}`);
     }
 }
 
