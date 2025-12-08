@@ -1,68 +1,84 @@
 //2025 Day 8 Part 1
 import {AocLib} from "./aocLib";
 
-type position = {i: number, x: number, y: number, z: number, connected: number[]};
+type position = {i: number, x: number, y: number, z: number};
+type pair = {i1: number, i2: number, dist:number};
+
 const junctions: position[] = [];
+const pairs: pair[] = [];
+const circuits: number[][] = [];
 
-function findClosestPairIndexes(points: position[]): [number, number] | null {
-    if (points.length < 2) return null;
-    let minDistSq = Infinity;
-    let result: [number, number] = [points[0].i, points[1].i];
-
-    for (let a = 0; a < points.length - 1; a++) {
-        for (let b = a + 1; b < points.length; b++) {
-            const dx = points[b].x - points[a].x;
-            const dy = points[b].y - points[a].y;
-            const dz = points[b].z - points[a].z;
+function getSortedPairs() {
+    for (let a = 0; a < junctions.length - 1; a++) {
+        for (let b = a + 1; b < junctions.length; b++) {
+            const dx = junctions[b].x - junctions[a].x;
+            const dy = junctions[b].y - junctions[a].y;
+            const dz = junctions[b].z - junctions[a].z;
 
             const distSq = dx * dx + dy * dy + dz * dz;
-
-            if (distSq < minDistSq && !points[a].connected.includes(points[b].i)) {
-                minDistSq = distSq;
-                result = [points[a].i, points[b].i];
-            }
+            pairs.push({i1:a, i2:b, dist:distSq});
         }
     }
-
-    return result;
+    pairs.sort((a,b) => b.dist - a.dist);  // Smallest LAST for pop
 }
 
-function findCircuitSize(i: number, visited: Set<number>): number {
-    if (visited.has(i)) return 0;
-    visited.add(i);
-    let size = 1; // count this node
-
-    for (const n of junctions[i].connected) {
-        size += findCircuitSize(n, visited);
+function addCircuit(c: pair) {
+    let ci1 = -1;
+    let ci2 = -1;
+    for (let i = 0; i < circuits.length; i++) {
+        if (circuits[i].includes(c.i1)) ci1 = i;
+        if (circuits[i].includes(c.i2)) ci2 = i;
     }
 
-    return size;
+    if (ci1 !== -1 && ci2 === -1) {
+        // Add to existing in ci1
+        circuits[ci1].push(c.i2);
+        return;
+    }
+
+    if (ci1 === -1 && ci2 !== -1) {
+        // Add to existing in ci2
+        circuits[ci2].push(c.i1);
+        return;
+    }
+
+    if (ci1 !== -1 && ci2 !== -1) {
+        if (ci1 === ci2) return;  // same circuit - ignore
+        // Merge ci1 and ci2
+        circuits[ci1].push(...circuits[ci2]);
+        circuits.splice(ci2, 1);
+        return;
+    }
+
+    // New circuit
+    circuits.push([c.i1, c.i2]);
 }
 
 async function main() {
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
         let sum = 0;
-        console.time('main');
         let i = 0;
         for(const line of lines) {
             const numbers = AocLib.getNumbers(line);
             if (numbers) {
-                junctions.push({i: i++, x: numbers[0], y: numbers[1], z: numbers[2], connected:[]});
+                junctions.push({i: i++, x: numbers[0], y: numbers[1], z: numbers[2]});
             }
         }
+
+        console.time('main');
+        getSortedPairs();
         for(let i = 0; i < 1000; i++) {
-            const [i1, i2] = findClosestPairIndexes(junctions) ?? [-1, -1];
-            junctions[i1].connected.push(i2);
-            junctions[i2].connected.push(i1);
+            const c = pairs.pop() ?? {i1:-1, i2:-1, dist:-1};
+            addCircuit(c)
         }
+
         const circuitSizes = new Set<number>();
-        for (let i = 0; i < junctions.length; i++) {
-            const visited = new Set<number>();
-            const s = findCircuitSize(i, visited);
-            circuitSizes.add(s);
+        for (const n of circuits) {
+            circuitSizes.add(n.length);
         }
         const sizesArray = Array.from(circuitSizes);
+
         const sortedSizes = sizesArray.sort((a,b) => b-a);
         sum = sortedSizes[0] * sortedSizes[1] * sortedSizes[2];
         console.timeEnd('main');
