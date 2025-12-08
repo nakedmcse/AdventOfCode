@@ -43,9 +43,7 @@ async function main() {
             connected.add(c.i1);
             connected.add(c.i2);
 
-            searching = false;
             searching = connected.size !== targetLength;
-
             if (!searching) {
                 sum = junctions[c.i1].x * junctions[c.i2].x;
             }
