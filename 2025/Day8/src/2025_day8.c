@@ -7,12 +7,13 @@
 #include<time.h>
 
 typedef struct junction {
-    int i, x, y, z;
+    int i;
+    long x, y, z;
 } junction;
 
 typedef struct pair {
     int i1, i2;
-    unsigned long dist;
+    long dist;
 } pair;
 
 typedef struct circuit {
@@ -44,11 +45,10 @@ int circuitComparator(const void* a, const void* b) {
 void getSortedPairs() {
     for (int a = 0; a < junctionsLength-1; a++) {
         for (int b = a+1; b < junctionsLength; b++) {
-            const int dx = junctions[b].x - junctions[a].x;
-            const int dy = junctions[b].y - junctions[a].y;
-            const int dz = junctions[b].z - junctions[a].z;
-            const unsigned long dist = ((unsigned long)dx*(unsigned long)dx)
-            + ((unsigned long)dy*(unsigned long)dy) + ((unsigned long)dz*(unsigned long)dz);
+            const long dx = junctions[b].x - junctions[a].x;
+            const long dy = junctions[b].y - junctions[a].y;
+            const long dz = junctions[b].z - junctions[a].z;
+            const long dist = dx*dx + dy*dy + dz*dz;
             pairsLength++;
             if (pairs == NULL) {
                 pairs = malloc(pairsLength * sizeof(pair));
@@ -132,8 +132,8 @@ long part1() {
     return (long)circuits[0].nodeLength * (long)circuits[1].nodeLength * (long)circuits[2].nodeLength;
 }
 
-unsigned long part2() {
-    unsigned long retval = 0;
+long part2() {
+    long retval = 0;
     int connected[junctionsLength];
     memset(connected, 0, junctionsLength * sizeof(int));
     bool searching = true;
@@ -150,7 +150,7 @@ unsigned long part2() {
             }
         }
         if (!searching) {
-            retval = (unsigned long)junctions[currentPair.i1].x * (unsigned long)junctions[currentPair.i2].x;
+            retval = junctions[currentPair.i1].x * junctions[currentPair.i2].x;
         }
     }
     return retval;
@@ -158,15 +158,15 @@ unsigned long part2() {
 
 int main (void) {
     long sumPart1 = 0;
-    unsigned long sumPart2 = 0;
+    long sumPart2 = 0;
 
     char line[5000];
     FILE *fp = fopen("../input.txt", "r");
     if (fp == NULL) return EXIT_FAILURE;
 
     while (fgets(line, 5000, fp) != NULL) {
-        int x, y, z;
-        if (sscanf(line, "%d,%d,%d", &x, &y, &z) == 3) {
+        long x, y, z;
+        if (sscanf(line, "%ld,%ld,%ld", &x, &y, &z) == 3) {
             junctionsLength++;
             if (junctions == NULL) {
                 junctions = malloc(junctionsLength * sizeof(junction));
@@ -190,7 +190,7 @@ int main (void) {
     sumPart2 = part2();
     double elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
 
-    printf("Part 1 Sum: %ld  Part 2 Sum: %lu\n", sumPart1, sumPart2);
+    printf("Part 1 Sum: %ld  Part 2 Sum: %ld\n", sumPart1, sumPart2);
     printf("%fms\n", elapsed*1000);
 
     return 0;
