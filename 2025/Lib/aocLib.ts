@@ -40,7 +40,7 @@ export class AocPolygon {
         let minY:number = this.vertexes[0].y;
         let maxY:number = this.vertexes[1].y;
 
-        for(let vertex of this.vertexes) {
+        for (let vertex of this.vertexes) {
             minX = vertex.x < minX ? vertex.x : minX;
             maxX = vertex.x > maxX ? vertex.x : maxX;
             minY = vertex.y < minY ? vertex.y : minY;
@@ -52,10 +52,14 @@ export class AocPolygon {
 
     // Line intersects
     private lineIntersects(a: AocPoint, b: AocPoint, c: AocPoint, d: AocPoint): AocPoint|null {
-        const t = ((a.x - c.x) * (c.y - d.y) - (a.y - c.y) * (c.x - d.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x));
-        const u = ((a.x - c.x) * (a.y - b.y) - (a.y - c.y) * (a.x - b.x)) / ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x));
+        const denom = ((a.x - b.x) * (c.y - d.y) - (a.y - b.y) * (c.x - d.x));
+        if (denom === 0) return null; // parallel or coincident
+
+        const t = ((a.x - c.x) * (c.y - d.y) - (a.y - c.y) * (c.x - d.x)) / denom;
+        const u = ((a.x - c.x) * (a.y - b.y) - (a.y - c.y) * (a.x - b.x)) / denom;
+
         if (0 <= t && t <= 1 && 0 <= u && u <= 1) {
-            return new AocPoint(a.x + t*(b.x - a.x), a.y + t*(b.y - a.y));
+            return new AocPoint(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y));
         }
         return null;
     }
@@ -67,39 +71,73 @@ export class AocPolygon {
         return Math.sqrt(xdiff**2 + ydiff**2);
     }
 
+    // Check if point lies on line segment AB (inclusive)
+    private pointOnSegment(p: AocPoint, a: AocPoint, b: AocPoint): boolean {
+        const eps = 1e-9;
+
+        // Check same line via cross product
+        const cross = (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+        if (Math.abs(cross) > eps) return false;
+
+        // Check within bounding box of segment
+        const minX = Math.min(a.x, b.x) - eps;
+        const maxX = Math.max(a.x, b.x) + eps;
+        const minY = Math.min(a.y, b.y) - eps;
+        const maxY = Math.max(a.y, b.y) + eps;
+
+        return (
+            p.x >= minX && p.x <= maxX &&
+            p.y >= minY && p.y <= maxY
+        );
+    }
+
     // Point in polygon
     public pointIn(point: AocPoint): boolean {
         // Check bounding box first
-        const bounding:AocPoint[] = this.boundingBox();
-        if((point.x < bounding[0].x || point.x > bounding[1].x) && (point.y < bounding[0].y || point.y > bounding[1].y)) {
+        const bounding: AocPoint[] = this.boundingBox();
+        if (
+            point.x < bounding[0].x || point.x > bounding[1].x ||
+            point.y < bounding[0].y || point.y > bounding[1].y
+        ) {
             // Outside bounding box
             return false;
         }
-        // Check actual vertexes
+
+        // Check if point lies on any edge; if so, consider it inside
+        for (let i = 1; i < this.vertexes.length; i++) {
+            const start = this.vertexes[i - 1];
+            const end = this.vertexes[i];
+            if (this.pointOnSegment(point, start, end)) {
+                return true;
+            }
+        }
+
+        // Ray casting / intersection parity
         let intersections: number = 0;
-        for(let i = 1; i<this.vertexes.length; i++) {
-            const start: AocPoint = this.vertexes[i-1];
+        for (let i = 1; i < this.vertexes.length; i++) {
+            const start: AocPoint = this.vertexes[i - 1];
             const end: AocPoint = this.vertexes[i];
             const intersects = this.lineIntersects(start, end, point, bounding[0]);
-            intersections += intersects ? 1 : 0;
+            if (intersects) intersections++;
         }
-        return intersections%2 !== 0;
+
+        return intersections % 2 !== 0;
     }
 
     // Area of polygon
     public area(): number {
         let area: number = 0;
-        for(let i = 1; i < this.vertexes.length; i++) {
+        for (let i = 1; i < this.vertexes.length; i++) {
             area += this.vertexes[i-1].x * this.vertexes[i].y;
             area -= this.vertexes[i-1].y * this.vertexes[i].x;
         }
-        return Math.abs(area/2);
+        return Math.abs(area / 2);
     }
 
     // Perimeter of polygon
     public perimeter(): number {
         let perim: number = 0;
-        for(let i = 1; i < this.vertexes.length; i++) {
+        for (let i = 1; i < this.vertexes.length; i++) {
             perim += this.lineLength(this.vertexes[i-1], this.vertexes[i]);
         }
         return perim;
