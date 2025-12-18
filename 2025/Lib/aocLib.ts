@@ -1,5 +1,6 @@
 // Advent of Code Helper Library
 import fs from "node:fs/promises";
+import crypto from "node:crypto";
 
 // Maze types
 export type Point = { x: number, y: number };
@@ -568,5 +569,43 @@ export class AocLib {
 
         sum += (curEnd - curStart) + 1;
         return sum;
+    }
+
+    // Permutations
+    public static getPermutations<T>(items: T[]): T[][] {
+        const result: T[][] = [];
+
+        function recurse(path: T[], used: boolean[]) {
+            if (path.length === items.length) {
+                result.push([...path]);
+                return;
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                if (used[i]) continue;
+
+                used[i] = true;
+                path.push(items[i]);
+                recurse(path, used);
+                path.pop();
+                used[i] = false;
+            }
+        }
+
+        recurse([], new Array(items.length).fill(false));
+        return result;
+    }
+
+    // Hashes
+    public static hashMD5(data: string): string {
+        return crypto.createHash('md5').update(data).digest('hex');
+    }
+
+    public static hashSHA1(data: string): string {
+        return crypto.createHash('sha1').update(data).digest('hex');
+    }
+
+    public static hashSHA256(data: string): string {
+        return crypto.createHash('sha256').update(data).digest('hex');
     }
 }
