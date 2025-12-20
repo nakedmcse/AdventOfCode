@@ -8,6 +8,7 @@
   "main": "index.js",
   "scripts": {
     "run2025d10p1": "ts-node src/part1.ts",
+    "run2025d10p2": "ts-node src/part2.ts",
     "update_deps": "npx npm-check-updates",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
