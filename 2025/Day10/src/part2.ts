@@ -5,226 +5,110 @@ class lightbox {
     public constructor(public target: string[], public current: string[], public switches:number[][], public joltage: number[]) {}
 }
 
-class state {
-    public constructor(public target: number[], public current: number[], public switches:number[][], public distance: number) {}
-}
-
-type SolveResult = { x: number[] } | null;
-
 const lightboxes: lightbox[] = [];
 
-function solveIntegerSystem(
-    A: number[][],
-    b: number[],
-    minimizeSumPresses = true
-): SolveResult {
-    const n = A.length;
-    if (n === 0) return { x: [] };
-    const m = A[0].length;
+function gaussianEliminationIntegerCounts( augmented: number[][] ): bigint[] | null {
 
-    // Validate
-    if (b.length !== n) throw new Error("b length must match A rows");
-    for (const row of A) if (row.length !== m) throw new Error("Jagged A");
+    const m = augmented.length;
+    if (m === 0) return [];
+    const n = augmented[0].length - 1;
 
-    // Remaining RHS as we assign variables
-    const rem = b.slice();
+    // Copy into BigInt matrix
+    const A: bigint[][] = augmented.map(r => r.map(v => BigInt(v)));
 
-    // Upper bound for each variable: min over rows where A[i][j]>0 of rem[i]
-    // (since contributing 1 per press)
-    function computeMaxForVar(j: number): number {
-        let max = Infinity;
-        for (let i = 0; i < n; i++) {
-            const aij = A[i][j];
-            if (aij > 0) max = Math.min(max, Math.floor(rem[i] / aij));
+    let row = 0;
+    let prevPivot = 1n;
+    const pivotCol: number[] = [];
+
+    for (let col = 0; col < n && row < m; col++) {
+
+        // Find pivot
+        let pivotRow = -1;
+        for (let i = row; i < m; i++) {
+            if (A[i][col] !== 0n) {
+                pivotRow = i;
+                break;
+            }
         }
-        return max === Infinity ? 0 : max; // variable not used anywhere => must be 0
-    }
+        if (pivotRow === -1) continue;
 
-    // Choose variable order: most-constrained first (smaller max, or higher degree)
-    const vars = [...Array(m).keys()];
-    vars.sort((j1, j2) => {
-        const max1 = (() => {
-            // compute with initial b (rem==b here), OK for ordering
-            let max = Infinity;
-            let deg = 0;
-            for (let i = 0; i < n; i++) {
-                const a = A[i][j1];
-                if (a > 0) {
-                    deg++;
-                    max = Math.min(max, Math.floor(b[i] / a));
-                }
-            }
-            return { max, deg };
-        })();
-        const max2 = (() => {
-            let max = Infinity;
-            let deg = 0;
-            for (let i = 0; i < n; i++) {
-                const a = A[i][j2];
-                if (a > 0) {
-                    deg++;
-                    max = Math.min(max, Math.floor(b[i] / a));
-                }
-            }
-            return { max, deg };
-        })();
-
-        // smaller max first; if tie, higher degree first
-        if (max1.max !== max2.max) return max1.max - max2.max;
-        return max2.deg - max1.deg;
-    });
-
-    const x = new Array<number>(m).fill(0);
-    let best: number[] | null = null;
-    let bestSum = Infinity;
-
-    function currentSum(): number {
-        let s = 0;
-        for (let j = 0; j < m; j++) s += x[j];
-        return s;
-    }
-
-    function dfs(k: number) {
-        // Prune by objective
-        if (minimizeSumPresses && best && currentSum() >= bestSum) return;
-
-        if (k === m) {
-            // All vars assigned: success if rem all zero
-            for (let i = 0; i < n; i++) if (rem[i] !== 0) return;
-            const sol = x.slice();
-            const s = currentSum();
-            if (!best || !minimizeSumPresses || s < bestSum) {
-                best = sol;
-                bestSum = s;
-            }
-            return;
+        // Swap rows
+        if (pivotRow !== row) {
+            [A[row], A[pivotRow]] = [A[pivotRow], A[row]];
         }
 
-        const j = vars[k];
-        const maxVal = computeMaxForVar(j);
+        const pivot = A[row][col];
 
-        // If minimizing sum presses, try larger values first or smaller first?
-        // Usually smaller-first finds any solution fast; larger-first can reduce free vars.
-        // We'll do smaller-first for feasibility + pruning, but if minimizing,
-        // we can do smaller-first still; it's fine.
-        for (let val = 0; val <= maxVal; val++) {
-            // Apply assignment: rem[i] -= A[i][j] * val
-            let ok = true;
-            for (let i = 0; i < n; i++) {
-                const dec = A[i][j] * val;
-                if (dec === 0) continue;
-                const r = rem[i] - dec;
-                if (r < 0) { ok = false; break; }
+        // Eliminate below
+        for (let i = row + 1; i < m; i++) {
+            const factor = A[i][col];
+            if (factor === 0n) continue;
+
+            for (let j = col; j <= n; j++) {
+                const num = A[i][j] * pivot - A[row][j] * factor;
+                A[i][j] = prevPivot === 1n ? num : num / prevPivot;
             }
-            if (!ok) continue;
+            A[i][col] = 0n;
+        }
 
-            x[j] = val;
-            for (let i = 0; i < n; i++) rem[i] -= A[i][j] * val;
+        pivotCol[row] = col;
+        prevPivot = pivot;
+        row++;
+    }
 
-            // Quick feasibility check:
-            // For each row, if remaining > max possible remaining contribution from unassigned vars => dead.
-            // Compute max possible remaining contribution using their maxima.
-            let feasible = true;
-            for (let i = 0; i < n && feasible; i++) {
-                let maxPossible = 0;
-                for (let kk = k + 1; kk < m; kk++) {
-                    const jj = vars[kk];
-                    const a = A[i][jj];
-                    if (a === 0) continue;
-                    // upper bound under current rem
-                    const ub = Math.floor(rem[i] / a); // loose, but safe
-                    maxPossible += a * ub;
-                }
-                if (rem[i] > maxPossible) feasible = false;
+    for (let i = 0; i < m; i++) {
+        let allZero = true;
+        for (let j = 0; j < n; j++) {
+            if (A[i][j] !== 0n) {
+                allZero = false;
+                break;
             }
-
-            if (feasible) dfs(k + 1);
-
-            // Undo
-            for (let i = 0; i < n; i++) rem[i] += A[i][j] * val;
-            x[j] = 0;
+        }
+        if (allZero && A[i][n] !== 0n) {
+            return null; // inconsistent
         }
     }
 
-    dfs(0);
-    return best ? { x: best } : null;
+    const x: bigint[] = Array(n).fill(0n);
+
+    for (let i = row - 1; i >= 0; i--) {
+        const col = pivotCol[i];
+        let rhs = A[i][n];
+
+        for (let j = col + 1; j < n; j++) {
+            rhs -= A[i][j] * x[j];
+        }
+
+        // Must divide exactly
+        if (rhs % A[i][col] !== 0n) {
+            return null; // not an integer solution
+        }
+
+        x[col] = rhs / A[i][col];
+    }
+
+    return x;
 }
 
-function buildSystemFromSwitches(
-    switches: number[][],
-    target: number[]
-): { A: number[][]; b: number[] } {
+function buildSystemFromSwitches(switches: number[][], target: number[]): number[][] {
     const n = target.length;
     const m = switches.length;
     const sets = switches.map(sw => new Set(sw));
 
     const A = Array.from({ length: n }, (_, i) => {
-        const row = new Array<number>(m).fill(0);
+        const row = new Array<number>(m+1).fill(0);
         for (let j = 0; j < m; j++) row[j] = sets[j].has(i) ? 1 : 0;
+        row[m] = target[i];
         return row;
     });
 
-    return { A, b: target.slice() };
+    return A;
 }
-
-function applySwitch(t: number[], s: number[], lim: number[], d: number): number {
-    for (const idx of s) {
-        if(lim[idx] < t[idx] + d) d = lim[idx] - t[idx];
-    }
-    for (const idx of s) {
-        t[idx] += d;
-    }
-    return d;
-}
-
-function findAffectingSwitches(ui: number, switches: number[][]): number[] {
-    const retval: number[] = [];
-    for (let i = 0; i < switches.length; i++) {
-        if (switches[i].includes(ui)) retval.push(i);
-    }
-    return retval;
-}
-
-function minButtonPresses(target: number[], switches: number[][]): number {
-
-    function dfs(s: state) {
-        if (s.current.filter((v,idx) => s.target[idx] === v).length === target.length) {
-            return s.distance;
-        }
-        if (s.current.filter((v,idx) => s.target[idx] < v).length > 0) {
-            return Infinity;  // bust
-        }
-        if (s.switches.length === 0) return Infinity;  // out of keys
-
-        const unfilledIndexes = s.current.map((v,idx) => { if(s.target[idx] > v) return idx;}).filter(v => v !== undefined);
-        const totals: number[] = [];
-        for (const idx of unfilledIndexes) {
-            const affectingSwitches = findAffectingSwitches(idx, s.switches);
-            if (affectingSwitches.length === 0) return Infinity;
-
-            for (const as of affectingSwitches) {
-                const d = s.target[idx] - s.current[idx];
-                const nextState: state = JSON.parse(JSON.stringify(s));
-                const actualD = applySwitch(nextState.current, s.switches[as], s.target, d);
-                nextState.distance += actualD;
-                if (actualD === 0) nextState.switches.splice(as, 1);
-                totals.push(dfs(nextState));
-            }
-        }
-
-        return Math.min(...totals);
-    }
-
-    const start = Array.from({ length: target.length }, () => 0);
-    const startState = new state(target, start, switches, 0);
-    return dfs(startState)
-}
-
 
 async function main() {
     const lines = await AocLib.readFile('input.txt');
     if (lines) {
-        let sum = 0;
+        let sum = 0n;
         console.time('main');
         for(const line of lines) {
             const splitline = line.split(" ");
@@ -254,9 +138,11 @@ async function main() {
 
         for (const l of lightboxes) {
             const matrix = buildSystemFromSwitches(l.switches, l.joltage);
-            console.log(matrix);
-            const solver = solveIntegerSystem(matrix.A, matrix.b , true);
-            console.log(solver);
+            const solver = gaussianEliminationIntegerCounts(matrix);
+            const addition = solver ? solver.reduce((a: bigint, b: bigint) => a + b, 0n) : 0n;
+            if (addition === 0n) console.log(matrix);
+            sum += addition;
+            console.log(sum);
         }
         console.timeEnd('main');
 
