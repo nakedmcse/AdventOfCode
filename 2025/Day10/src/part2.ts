@@ -7,87 +7,136 @@ class lightbox {
 
 const lightboxes: lightbox[] = [];
 
-function gaussianEliminationIntegerCounts( augmented: number[][] ): bigint[] | null {
-
-    const m = augmented.length;
-    if (m === 0) return [];
-    const n = augmented[0].length - 1;
-
-    // Copy into BigInt matrix
-    const A: bigint[][] = augmented.map(r => r.map(v => BigInt(v)));
+function gaussianEliminationIntegerCounts(switches: number[][], target: number[]): bigint | null {
+    const augmented = buildSystemFromSwitches(switches, target);
+    const height = augmented.length;
+    if (height === 0) return 0n;
+    const width = augmented[0].length - 1;         // variables (buttons)
+    const rows: bigint[][] = augmented.map(r => r.map(v => BigInt(v)));
 
     let row = 0;
-    let prevPivot = 1n;
-    const pivotCol: number[] = [];
+    const pivotColumns: number[] = [];
+    const freeColumns: number[] = [];
 
-    for (let col = 0; col < n && row < m; col++) {
+    // Gaussian elimination (integer preserving, no normalization)
+    for (let col = 0; col < width; col++) {
+        let pivot = -1;
 
-        // Find pivot
-        let pivotRow = -1;
-        for (let i = row; i < m; i++) {
-            if (A[i][col] !== 0n) {
-                pivotRow = i;
+        for (let i = row; i < height; i++) {
+            if (rows[i][col] !== 0n) {
+                pivot = i;
                 break;
             }
         }
-        if (pivotRow === -1) continue;
 
-        // Swap rows
-        if (pivotRow !== row) {
-            [A[row], A[pivotRow]] = [A[pivotRow], A[row]];
+        if (pivot === -1) {
+            freeColumns.push(col);
+            continue;
         }
 
-        const pivot = A[row][col];
+        // swap pivot row up
+        if (pivot !== row) [rows[row], rows[pivot]] = [rows[pivot], rows[row]];
 
-        // Eliminate below
-        for (let i = row + 1; i < m; i++) {
-            const factor = A[i][col];
-            if (factor === 0n) continue;
+        // eliminate below
+        for (let i = row + 1; i < height; i++) {
+            const value = rows[i][col];
+            if (value === 0n) continue;
 
-            for (let j = col; j <= n; j++) {
-                const num = A[i][j] * pivot - A[row][j] * factor;
-                A[i][j] = prevPivot === 1n ? num : num / prevPivot;
+            const pivotValue = rows[row][col];
+            for (let j = col; j <= width; j++) {
+                rows[i][j] = rows[i][j] * pivotValue - rows[row][j] * value;
             }
-            A[i][col] = 0n;
+            rows[i][col] = 0n;
         }
 
-        pivotCol[row] = col;
-        prevPivot = pivot;
+        pivotColumns.push(col);
         row++;
     }
 
-    for (let i = 0; i < m; i++) {
+    // consistency check
+    for (let i = 0; i < height; i++) {
         let allZero = true;
-        for (let j = 0; j < n; j++) {
-            if (A[i][j] !== 0n) {
+        for (let j = 0; j < width; j++) {
+            if (rows[i][j] !== 0n) {
                 allZero = false;
                 break;
             }
         }
-        if (allZero && A[i][n] !== 0n) {
-            return null; // inconsistent
+        if (allZero && rows[i][width] !== 0n) return null;
+    }
+
+    // bound = min(target[idx] over indices touched by that button) + 1
+    const freeBounds: bigint[] = freeColumns.map((col) => {
+        let min = BigInt(Number.MAX_SAFE_INTEGER);
+        for (const idx of switches[col] ?? []) {
+            const t = BigInt(target[idx] ?? 0);
+            if (t < min) min = t;
+        }
+        if (min === BigInt(Number.MAX_SAFE_INTEGER)) min = 0n; // button touches nothing
+        return min + 1n;
+    });
+
+    // total combinations = product(bounds)
+    let combinations = 1n;
+    for (const b of freeBounds) combinations *= b;
+
+    const freeVars: bigint[] = new Array(freeColumns.length).fill(0n);
+    let bestSum: bigint | null = null;
+    let bestSolution: bigint[] | null = null;
+
+    // rank = pivotColumns.length; pivot rows are 0..rank-1
+    const rank = pivotColumns.length;
+
+    for (let iter = 0n; iter < combinations; iter++) {
+        const sol: bigint[] = new Array(width).fill(0n);
+        for (let i = 0; i < freeColumns.length; i++) {
+            sol[freeColumns[i]] = freeVars[i];
+        }
+
+        let valid = true;
+
+        // Back-substitute pivot vars from bottom pivot row to top
+        for (let pi = rank - 1; pi >= 0; pi--) {
+            const col = pivotColumns[pi];
+            let rhs = rows[pi][width];
+
+            for (let j = col + 1; j < width; j++) {
+                rhs -= rows[pi][j] * sol[j];
+            }
+
+            const denom = rows[pi][col];
+            if (denom === 0n) { valid = false; break; }
+            if (rhs % denom !== 0n) { valid = false; break; }
+
+            const x = rhs / denom;
+            if (x < 0n) { valid = false; break; }
+
+            sol[col] = x;
+        }
+
+        // advance free var counter
+        for (let i = 0; i < freeVars.length; i++) {
+            freeVars[i] += 1n;
+            if (freeVars[i] === freeBounds[i]) {
+                freeVars[i] = 0n;
+            } else {
+                break;
+            }
+        }
+
+        if (!valid) continue;
+
+        let sum = 0n;
+        for (const v of sol) sum += v;
+
+        if (bestSum === null || sum < bestSum) {
+            bestSum = sum;
+            bestSolution = sol;
         }
     }
 
-    const x: bigint[] = Array(n).fill(0n);
-
-    for (let i = row - 1; i >= 0; i--) {
-        const col = pivotCol[i];
-        let rhs = A[i][n];
-
-        for (let j = col + 1; j < n; j++) {
-            rhs -= A[i][j] * x[j];
-        }
-
-        // Must divide exactly
-        if (rhs % A[i][col] !== 0n) {
-            return null; // not an integer solution
-        }
-
-        x[col] = rhs / A[i][col];
-    }
-
-    return x;
+    if (bestSolution === null || bestSum === null) return null;
+    return bestSum;
 }
 
 function buildSystemFromSwitches(switches: number[][], target: number[]): number[][] {
@@ -137,10 +186,9 @@ async function main() {
         }
 
         for (const l of lightboxes) {
-            const matrix = buildSystemFromSwitches(l.switches, l.joltage);
-            const solver = gaussianEliminationIntegerCounts(matrix);
-            const addition = solver ? solver.reduce((a: bigint, b: bigint) => a + b, 0n) : 0n;
-            if (addition === 0n) console.log(matrix);
+            const solver = gaussianEliminationIntegerCounts(l.switches, l.joltage);
+            const addition = solver ?? 0n;
+            if (addition === 0n) console.log(l.switches,l.joltage);
             sum += addition;
             console.log(sum);
         }
